@@ -1,0 +1,13 @@
+{
+  "name": "seul-acupuntura",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "assets": "node scripts/download-assets.mjs",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/serve.mjs",
+    "test": "node --test tests/site.test.mjs"
+  }
+}

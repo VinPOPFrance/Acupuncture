@@ -1,0 +1,32 @@
+[
+  {
+    "file": "equipo.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_3a3a24aea99b4f6babafeab23d693a1a~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/quienessomos"
+  },
+  {
+    "file": "consulta.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_0827523241d241508ba54338de0c0dd0~mv2_d_4272_2848_s_4_2.jpg",
+    "page": "https://www.seulacupuntura.com/galeria"
+  },
+  {
+    "file": "cabinet.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_aed30b5d0f444da9a15de8c88b6b1779~mv2_d_4272_2848_s_4_2.jpg",
+    "page": "https://www.seulacupuntura.com/galeria"
+  },
+  {
+    "file": "sala.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_ce5bcea531ca495b919cde431c12e068~mv2_d_5312_2988_s_4_2.jpg",
+    "page": "https://www.seulacupuntura.com/galeria"
+  },
+  {
+    "file": "detalle.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_ec3dc847bd0e4943bda878298d1a0bae~mv2_d_4272_2848_s_4_2.jpg",
+    "page": "https://www.seulacupuntura.com/galeria"
+  },
+  {
+    "file": "formacion.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_37a87497a27941acb590c7ba13386529~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/cursos"
+  }
+]
