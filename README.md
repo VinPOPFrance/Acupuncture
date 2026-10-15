@@ -85,6 +85,9 @@ celui-ci ; les citations sont attribuées et renvoient à la fiche publique.
   note **4,9/5, 232 avis**, relevée directement dans le DOM de la fiche. Le lien
   utilisé dans le site est dérivé de l'identifiant hexadécimal fourni par
   l'utilisateur, pour éviter les erreurs de transcription.
+- Un plan Google Maps intégré affiche les coordonnées publiques du centre dans
+  la section localisation. Sa présence est signalée dans la page confidentialité ;
+  Google peut recevoir des données techniques lorsque la carte se charge.
 - Les deux extraits sont attribués à J.Ch424 et Erica Esteban. Les traductions
   espagnoles sont signalées et le texte anglais original est accessible. Les
   témoignages ne sont pas présentés comme une preuve d'efficacité.

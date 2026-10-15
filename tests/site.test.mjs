@@ -31,8 +31,8 @@ test('26 statically rendered pages have one H1, the correct language and complet
           assert.ok(target.includes(`id="${url.hash.slice(1)}"`), `${path}: broken anchor ${href}`);
         }
       }
-      for (const [, src] of html.matchAll(/src="([^"]+)"/g)) {
-        assert.ok(src.startsWith('/'), `${path}: external asset ${src}`);
+      for (const [, src] of html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)) {
+        assert.ok(src.startsWith('/'), `${path}: external image ${src}`);
         assert.ok((await stat(new URL(`.${src}`, out))).size > 0, src);
       }
     }
@@ -86,6 +86,19 @@ test('Google reviews follow the hero, are visible in both languages and use loca
   }
   assert.match(es, /lang="en">He's by far one of the best acupuncturist I've been to…/);
   assert.match(es, /lang="es">«Es, con diferencia/);
+});
+
+test('location section includes an accessible Google map and privacy disclosure', () => {
+  for (const lang of ['es', 'en']) {
+    const home = render(lang, 'home');
+    assert.match(home, /<iframe src="https:\/\/www\.google\.com\/maps\?q=40\.415438,-3\.6677628&amp;z=16&amp;output=embed"/);
+    assert.match(home, new RegExp(`title="${lang === 'es' ? 'Mapa de Seul Acupuntura en Madrid' : 'Map showing Seul Acupuntura in Madrid'}"`));
+    assert.match(home, /loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen/);
+    const privacy = render(lang, 'privacy');
+    assert.ok(privacy.includes('Google Maps'));
+    assert.ok(privacy.includes(lang === 'es' ? 'dirección IP' : 'IP address'));
+    assert.ok(!privacy.includes('embedded maps'));
+  }
 });
 
 test('production metadata is absolute, localised and escaped', () => {
