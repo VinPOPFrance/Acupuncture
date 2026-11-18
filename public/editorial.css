@@ -497,24 +497,92 @@ img.img-left { object-position: 0% 50%; }
 .services .carousel-progress { background: #d3d6c8; }
 .services .carousel-button:hover { background: var(--rust); }
 
-/* ---------- "Un punto de partida": questions answered in place ---------- */
-.concerns { margin: 25px 0 0; }
-.concern { border-bottom: 1px solid var(--line); }
-.concern summary {
-  display: flex;
+/* ---------- Questions (single section, merged with the FAQ) ---------- */
+.faq-layout { grid-template-columns: .9fr 1.1fr; }
+.faq-layout > div.faq-intro h2 { max-width: 470px; }
+.faq-intro { position: sticky; top: 120px; align-self: start; }
+.faq-lead { max-width: 430px; color: var(--muted); font-size: 18px; line-height: 1.65; }
+.faq-item summary { transition: color .2s; }
+.faq-item summary:hover { color: var(--rust); }
+
+/* ---------- First visit: light, three numbered steps ---------- */
+.plan { color: var(--ink); background: #f3ece4; border-block: 1px solid #e6d9cd; }
+.plan .eyebrow { color: var(--rust); }
+.plan h2 em { color: var(--rust); }
+.plan-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 80px; align-items: start; }
+.plan-intro { position: sticky; top: 120px; }
+.plan-intro h2 { margin-bottom: 18px; }
+.plan-lead { max-width: 420px; color: var(--muted); font-size: 18px; line-height: 1.6; }
+.plan-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 15px;
-  padding: 12px 0;
-  list-style: none;
-  font-size: 16px;
-  transition: color .2s;
+  gap: 10px;
+  margin: 4px 0 30px;
+  padding: 9px 16px;
+  color: var(--rust);
+  background: var(--white);
+  border: 1px solid #e3cfc3;
+  border-radius: 999px;
+  font: 700 12px/1.3 Arial, Helvetica, sans-serif;
+  letter-spacing: .05em;
+  text-transform: uppercase;
 }
-.concern summary::-webkit-details-marker { display: none; }
-.concern summary:hover { color: var(--rust); }
-.concern-mark { color: var(--rust); }
-.concern-toggle { margin-left: auto; color: var(--rust); font: 22px/1 var(--serif); transition: transform .25s; }
-.concern[open] .concern-toggle { transform: rotate(45deg); }
-.concern > p { margin: 0 0 14px 30px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.plan-badge > span { display: grid; place-items: center; width: 20px; height: 20px; color: #fff; background: var(--rust); border-radius: 50%; font-size: 11px; }
+.plan .plan-action { flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 0; }
+.plan .plan-action .small { max-width: 320px; color: var(--muted); }
+.plan .steps { display: grid; grid-template-columns: 1fr; gap: 18px; margin: 0; padding: 0; }
+.plan .steps li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: start;
+  gap: 22px;
+  padding: 28px 30px;
+  background: var(--white);
+  border: 1px solid #eadfd5;
+  box-shadow: 0 18px 40px -34px rgba(41, 38, 32, .6);
+}
+.plan .steps li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 58px;
+  top: 84px;
+  bottom: -47px;
+  width: 1px;
+  background: repeating-linear-gradient(to bottom, #d9b9a6 0 4px, transparent 4px 8px);
+}
+.plan .step-number {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  grid-row: auto;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  color: #fff;
+  background: var(--rust);
+  border-radius: 50%;
+  font: 600 24px/1 "Alegreya", Georgia, serif;
+  box-shadow: 0 0 0 6px #f6efe8;
+}
+.plan .steps h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 6px 0 8px; font-size: 25px; }
+.plan .steps p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.step-tag { padding: 4px 10px; color: var(--wa); background: #e5f2eb; border-radius: 999px; font: 700 11px/1.2 Arial, Helvetica, sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+
+@media (max-width: 900px) {
+  .plan-grid, .faq-layout { grid-template-columns: 1fr; gap: 40px; }
+  .plan-intro, .faq-intro { position: static; }
+}
+
+@media (max-width: 600px) {
+  .plan .steps li { grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 18px; }
+  .plan .steps li:not(:last-child)::after { left: 40px; top: 66px; }
+  .plan .step-number { width: 44px; height: 44px; font-size: 20px; }
+  .plan .steps h3 { font-size: 22px; margin-top: 4px; }
+  .plan .plan-action { align-items: stretch; }
+  .faq-lead, .plan-lead { font-size: 16px; }
+}
 
 @media (max-width: 600px) {
   .card-body { padding: 18px 18px 14px; }

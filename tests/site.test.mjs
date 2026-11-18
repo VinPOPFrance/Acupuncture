@@ -75,8 +75,8 @@ test('Google reviews follow the hero, are visible in both languages and use loca
   for (const [html, lang] of [[es, 'es'], [en, 'en']]) {
     const hero = html.indexOf('class="hero"');
     const reviews = html.indexOf('id="opiniones"');
-    const problem = html.indexOf('class="section problem"');
-    assert.ok(hero >= 0 && hero < reviews && reviews < problem);
+    const questions = html.indexOf('class="section faq"');
+    assert.ok(hero >= 0 && hero < reviews && reviews < questions);
     assert.match(html, /class="hero-rating-link" href="#opiniones"/);
     assert.match(html, /4[,.]9 (?:sobre 5|out of 5)/);
     assert.match(html, /234/);
@@ -224,20 +224,39 @@ test('treatment cards use the live-site photos and the home page shows every tec
   }
 });
 
-test('the three starting questions open their answer in place, without leaving the section', () => {
+test('one questions section replaces "No tienes que saber…" and "Es normal tener preguntas"', () => {
   for (const lang of ['es', 'en']) {
-    const home = render(lang, 'home');
-    const problem = home.slice(home.indexOf('class="section problem"'), home.indexOf('</section>', home.indexOf('class="section problem"')));
-    assert.equal((problem.match(/<details class="concern">/g) || []).length, 3, lang);
-    assert.ok(!/href="#/.test(problem), `${lang}: no jump to another section`);
-    for (const [, price] of copy[lang].prices.slice(1)) assert.ok(problem.includes(price), `${lang}: ${price} in the cost answer`);
+    for (const key of ['home', 'contact']) {
+      const html = render(lang, key);
+      assert.equal((html.match(/<section class="section faq" id="preguntas">/g) || []).length, 1, `${lang}/${key}`);
+      assert.ok(!html.includes('class="section problem"') && !html.includes('class="concern"'), `${lang}/${key}`);
+      assert.ok(!html.includes(lang === 'es' ? 'Es normal tener preguntas' : 'Questions are welcome'), `${lang}/${key}`);
+      assert.ok(html.includes(copy[lang].faqTitle) && html.includes(copy[lang].faqLead), `${lang}/${key}`);
+      assert.equal((html.match(/<details class="faq-item" id="faq-\d">/g) || []).length, copy[lang].faq.length, `${lang}/${key}`);
+    }
+    const questions = copy[lang].faq.map(([question]) => question);
+    assert.equal(new Set(questions).size, questions.length);
+    const cost = copy[lang].faq[1][1];
+    for (const [, price] of copy[lang].prices.slice(1)) assert.ok(cost.includes(price), `${lang}: ${price} in the cost answer`);
+  }
+});
+
+test('the first visit section shows three numbered steps beside its call to action', () => {
+  for (const lang of ['es', 'en']) {
+    const html = render(lang, 'home');
+    const plan = html.slice(html.indexOf('id="primera-visita"'), html.indexOf('</section>', html.indexOf('id="primera-visita"')));
+    assert.match(plan, /<div class="container plan-grid">/);
+    assert.equal((plan.match(/<span class="step-number" aria-hidden="true">\d<\/span>/g) || []).length, 3);
+    assert.ok(plan.includes(`<span class="step-tag">${copy[lang].freeTag}</span>`));
+    assert.ok(plan.includes(copy[lang].freeBadge));
+    assert.match(plan, /class="button button-wa"/);
   }
 });
 
 test('home sections follow the agreed priority order', () => {
   for (const lang of ['es', 'en']) {
     const home = render(lang, 'home');
-    const order = ['class="hero"', 'id="opiniones"', 'class="section team-feature"', 'class="section services"', 'class="section problem"', 'id="primera-visita"', 'id="tarifas"', 'class="section location"', 'class="section faq"', 'class="final-cta"']
+    const order = ['class="hero"', 'id="opiniones"', 'class="section team-feature"', 'class="section services"', 'class="section faq"', 'id="primera-visita"', 'id="tarifas"', 'class="section location"', 'class="final-cta"']
       .map(marker => home.indexOf(marker));
     assert.ok(order.every(index => index >= 0), `${lang}: every section present`);
     assert.deepEqual([...order].sort((a, b) => a - b), order, `${lang}: order`);

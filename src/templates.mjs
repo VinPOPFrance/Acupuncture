@@ -105,10 +105,10 @@ function treatmentCarousel(lang, items) {
 
 function plan(lang) {
   const c = copy[lang];
-  return `<section class="section plan" id="primera-visita"><div class="container">
-    <div class="section-heading"><p class="eyebrow">${c.planEyebrow}</p><h2>${c.planTitle}</h2></div>
-    <ol class="steps">${c.steps.map(([title, text], i) => `<li><span class="step-number">0${i + 1}</span><h3>${title}</h3><p>${text}</p></li>`).join('')}</ol>
-    <div class="plan-action">${button(lang)}<span class="small">${c.finalCue}</span></div>
+  return `<section class="section plan" id="primera-visita"><div class="container plan-grid">
+    <div class="plan-intro"><p class="eyebrow">${c.planEyebrow}</p><h2>${c.planTitle}</h2><p class="plan-lead">${c.planLead}</p><p class="plan-badge"><span aria-hidden="true">✓</span>${c.freeBadge}</p>
+      <div class="plan-action">${button(lang)}<span class="small">${c.finalCue}</span></div></div>
+    <ol class="steps">${c.steps.map(([title, text], i) => `<li><span class="step-number" aria-hidden="true">${i + 1}</span><div class="step-body"><h3>${title}${i === 1 ? ` <span class="step-tag">${c.freeTag}</span>` : ''}</h3><p>${text}</p></div></li>`).join('')}</ol>
   </div></section>`;
 }
 
@@ -170,7 +170,7 @@ function prices(lang) {
 
 function faq(lang) {
   const c = copy[lang];
-  return `<section class="section faq"><div class="container faq-layout"><div><p class="eyebrow">${c.faqEyebrow}</p><h2>${c.faqTitle}</h2></div><div>${c.faq.map(([question, answer], i) => `<details class="faq-item" id="faq-${i + 1}"><summary>${question}<span aria-hidden="true">+</span></summary><p>${answer}</p></details>`).join('')}</div></div></section>`;
+  return `<section class="section faq" id="preguntas"><div class="container faq-layout"><div class="faq-intro"><p class="eyebrow">${c.faqEyebrow}</p><h2>${c.faqTitle}</h2><p class="faq-lead">${c.faqLead}</p></div><div>${c.faq.map(([question, answer], i) => `<details class="faq-item" id="faq-${i + 1}"><summary>${question}<span aria-hidden="true">+</span></summary><p>${answer}</p></details>`).join('')}</div></div></section>`;
 }
 
 function location(lang, full = false) {
@@ -191,8 +191,8 @@ function home(lang) {
   ${reviews(lang)}
   <section class="section team-feature"><div class="container team-grid"><figure class="team-photo">${image('dr-shim', c.cvPhotoAlt)}<figcaption>${c.cvPhotoCaption}</figcaption></figure><div class="team-copy"><p class="eyebrow">${c.teamEyebrow}</p><h2>${c.teamTitle}</h2><p>${c.teamText}</p>${cvHighlights(lang)}<a class="text-link" href="${route(lang, 'team')}#curriculum">${c.cvLink}${arrow}</a></div></div></section>
   <section class="section services"><div class="container"><div class="section-heading heading-split"><div><p class="eyebrow">${c.servicesEyebrow}</p><h2>${c.servicesTitle}</h2></div><p>${c.servicesText}</p></div>${treatmentCarousel(lang, treatments)}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>
-  <section class="section problem"><div class="container problem-grid"><div><p class="eyebrow">${c.problemEyebrow}</p><h2>${c.problemTitle}</h2></div><div><p class="lead">${c.problemText}</p><div class="concerns">${c.concerns.map(([question, answer]) => `<details class="concern"><summary><span class="concern-mark" aria-hidden="true">↳</span>${question}<span class="concern-toggle" aria-hidden="true">+</span></summary><p>${answer}</p></details>`).join('')}</div></div></div></section>
-  ${plan(lang)}${prices(lang)}${location(lang)}${faq(lang)}${finalCTA(lang)}`;
+  ${faq(lang)}
+  ${plan(lang)}${prices(lang)}${location(lang)}${finalCTA(lang)}`;
 }
 
 function pageHero(lang, title, lead, eyebrow, photo, alt, cls = '') {
