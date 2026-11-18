@@ -35,8 +35,11 @@ jamais soumis et aucun message WhatsApp n'est envoyé pendant les tests.
 - [public/styles.css](public/styles.css) et
   [public/editorial.css](public/editorial.css) : styles, typographie et responsive.
 - [public/fonts/](public/fonts/) : Alegreya servie localement, sous licence OFL.
-- [public/app.js](public/app.js) : menu mobile avec fermeture au clavier.
-- [src/assets.json](src/assets.json) : provenance des photographies autorisées.
+- [public/app.js](public/app.js) : menu mobile, carrousel d'avis, apparitions au
+  défilement, compteur de la note et barre de progression de lecture.
+- [src/assets.json](src/assets.json) : provenance des photographies du site original.
+  `public/images/dr-shim.jpg` (portrait du Dr Shim) a été fourni par l'utilisateur
+  le 18 novembre 2026 et n'est pas téléchargé par `npm run assets`.
 - [scripts/build.mjs](scripts/build.mjs) : génération du site statique.
 - [dist/](dist/) : résultat à héberger, sans sources ni rapports internes.
 
@@ -45,9 +48,17 @@ formation, contact et tarifs, confidentialité et mentions légales. Les treize
 pages existent dans chaque langue. Le changement ES/EN conserve la page visitée.
 Une véritable page 404 bilingue accompagne le site.
 
-Les pages et FAQ restent utilisables sans JavaScript. Le JavaScript améliore
-uniquement le menu mobile. Photos locales, chargement différé sauf pour le visuel
-principal, dimensions réservées, liens téléphoniques et barre de contact mobile.
+Les pages, la FAQ et les avis restent utilisables sans JavaScript : le carrousel
+est une liste à défilement horizontal natif. Le JavaScript ajoute les boutons, le
+défilement automatique (pause au survol, au focus, au toucher ou via le bouton),
+les apparitions au défilement et le compteur de la note. Toutes les animations
+sont désactivées si le visiteur demande moins de mouvement
+(`prefers-reduced-motion`). Aucun attribut `style` dans le HTML, pour respecter la
+CSP ; le JavaScript passe par le CSSOM. Photos locales, chargement différé sauf
+pour le visuel principal, dimensions réservées, liens téléphoniques.
+
+La barre d'appel et WhatsApp (logo WhatsApp) est visible sur toutes les pages :
+barre fixe en bas sur mobile, pastille flottante en bas à droite au-delà de 600 px.
 
 ## Choix éditoriaux
 
@@ -66,8 +77,10 @@ WhatsApp propres ; aucune session ni certification n'est inventée.
 Typographie Alegreya traditionnelle, hébergée localement avec sa licence OFL.
 Aucune police n'est chargée depuis un service externe. La mise en page est
 éditoriale, avec des photos rectangulaires et moins d'ornements décoratifs.
-La note et les avis Google apparaissent dans le hero puis immédiatement sous
-celui-ci ; les citations sont attribuées et renvoient à la fiche publique.
+La note et les avis Google (logo Google) apparaissent dans le hero puis
+immédiatement sous celui-ci, ainsi que sur les pages traitements, techniques,
+équipe et contact ; les citations sont attribuées et renvoient à la fiche publique.
+L'équipe présente le currículum du Dr Shim et de la Dra Park (`#curriculum`).
 
 ## Sources vérifiées le 15 octobre 2026
 
@@ -88,9 +101,19 @@ celui-ci ; les citations sont attribuées et renvoient à la fiche publique.
 - Un plan Google Maps intégré affiche les coordonnées publiques du centre dans
   la section localisation. Sa présence est signalée dans la page confidentialité ;
   Google peut recevoir des données techniques lorsque la carte se charge.
-- Les deux extraits sont attribués à J.Ch424 et Erica Esteban. Les traductions
-  espagnoles sont signalées et le texte anglais original est accessible. Les
-  témoignages ne sont pas présentés comme une preuve d'efficacité.
+- Mise à jour du 18 novembre 2026 : **4,9/5, 234 avis, dont 224 à 5 étoiles**,
+  relevés sur la fiche Google (panneau d'avis de la recherche Google, sans
+  connexion). 33 avis réels figurent dans `reviews` de
+  [src/content.mjs](src/content.mjs), texte original non corrigé, extraits
+  signalés par « … » ou « […] ». Chaque avis a sa traduction, signalée, avec
+  l'original accessible. Écartés volontairement : l'avis de l'utilisateur
+  lui-même et les avis promettant une guérison, l'évitement d'une chirurgie ou
+  un résultat sur une maladie grave. Les témoignages ne sont pas présentés comme
+  une preuve d'efficacité.
+- Currículum : dépliant imprimé du centre photographié par l'utilisateur le
+  18 novembre 2026, reproduit sans ajout. La ligne « Miembro de Médico en
+  China » du dépliant est rendue par « Miembro médico en China » : à faire
+  confirmer par le centre.
 - WhatsApp **+34 646 352 139** confirmé par l'utilisateur.
 
 La mise à jour de la note et du nombre d'avis est manuelle, sans scraper ni widget

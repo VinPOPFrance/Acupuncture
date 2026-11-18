@@ -1,4 +1,4 @@
-import { clinic, copy, routes, treatments } from './content.mjs';
+import { clinic, copy, cv, reviews as reviewItems, routes, treatments } from './content.mjs';
 
 export const escape = (value) => String(value).replace(/[&<>"']/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -11,6 +11,11 @@ export function route(lang, key) {
 }
 
 const arrow = '<span aria-hidden="true">↗</span>';
+const waIcon = '<svg class="wa-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.28-.2-.57-.35m-5.42 7.4h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88m8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.9a11.82 11.82 0 0 0-3.48-8.41Z"/></svg>';
+const googleG = (cls = 'google-g') => `<svg class="${cls}" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
+const phoneIcon = '<svg class="phone-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M6.6 3.5h-2a1.6 1.6 0 0 0-1.6 1.7 17 17 0 0 0 15.8 15.8 1.6 1.6 0 0 0 1.7-1.6v-2a1 1 0 0 0-.8-1l-3.6-.8a1 1 0 0 0-1 .3l-1.4 1.6a12.7 12.7 0 0 1-5.6-5.6l1.6-1.4a1 1 0 0 0 .3-1l-.8-3.6a1 1 0 0 0-1-.8Z"/></svg>';
+const needleIcon = '<svg class="needle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M4 20 18.5 5.5M16 4l4 4M14.5 6.5l3 3M4 20l-1 1"/></svg>';
+const stars = (n) => `${'★'.repeat(n)}<span class="star-off">${'★'.repeat(5 - n)}</span>`;
 const wa = (lang, training = false) => {
   const message = training
     ? (lang === 'es' ? 'Hola, me gustaría recibir información sobre las próximas actividades formativas.' : 'Hello, I would like information about your upcoming training activities.')
@@ -19,11 +24,11 @@ const wa = (lang, training = false) => {
 };
 
 function button(lang, training = false) {
-  return `<a class="button" href="${wa(lang, training)}">${training ? copy[lang].trainingBook : copy[lang].book}${arrow}</a>`;
+  return `<a class="button button-wa" href="${wa(lang, training)}">${waIcon}${training ? copy[lang].trainingBook : copy[lang].book}${arrow}</a>`;
 }
 
 function image(file, alt, cls = '', eager = false) {
-  const sizes = file === 'equipo' ? [1174, 747] : file === 'sala' ? [1600, 900] : file === 'formacion' ? [1500, 844] : [1600, 1066];
+  const sizes = { equipo: [1174, 747], sala: [1600, 900], formacion: [1500, 844], 'dr-shim': [991, 1100] }[file] ?? [1600, 1066];
   return `<img class="${cls}" src="/images/${file}.jpg" alt="${escape(alt)}" width="${sizes[0]}" height="${sizes[1]}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`;
 }
 
@@ -45,14 +50,14 @@ function header(lang, key) {
   const other = lang === 'es' ? 'en' : 'es';
   return `<a class="skip" href="#main">${c.skip}</a>
   <div class="topline"><div class="container"><span>Madrid · Retiro</span><a href="tel:${clinic.phone}">+34 911 645 198</a></div></div>
-  <header class="header"><div class="container header-inner">
+  <header class="header"><div class="scroll-progress" aria-hidden="true"></div><div class="container header-inner">
     <a class="brand" href="${route(lang, 'home')}" aria-label="Seul Acupuntura · ${lang === 'es' ? 'Inicio' : 'Home'}"><span class="brand-name">Seul</span><span class="brand-detail">ACUPUNTURA · MADRID</span></a>
     <button class="menu-toggle" hidden aria-controls="navigation" aria-expanded="false" data-open="${c.menu}" data-close="${c.close}">${c.menu}<span aria-hidden="true">☰</span></button>
     <nav id="navigation" aria-label="${lang === 'es' ? 'Principal' : 'Main'}">
       ${['treatments', 'team', 'training', 'contact'].map((item, i) => `<a href="${route(lang, item)}" ${key === item || (item === 'treatments' && treatments.some(t => t.id === key)) ? 'aria-current="page"' : ''}>${c.nav[i]}</a>`).join('')}
     </nav>
     <div class="header-actions"><a class="language" href="${route(other, key)}" hreflang="${other}" lang="${other}" aria-label="${other === 'en' ? 'Read this page in English' : 'Leer esta página en español'}"><span ${lang === 'es' ? 'class="selected"' : ''}>ES</span><span aria-hidden="true">/</span><span ${lang === 'en' ? 'class="selected"' : ''}>EN</span></a>
-    <a class="button button-small" href="${wa(lang)}">${c.appointment}${arrow}</a></div>
+    <a class="button button-small button-wa" href="${wa(lang)}">${waIcon}${c.appointment}${arrow}</a></div>
   </div></header>`;
 }
 
@@ -64,7 +69,7 @@ function footer(lang) {
     <div><h2>${c.visit}</h2><address>${clinic.address}<br>${clinic.postcode}</address><a href="${clinic.maps}" target="_blank" rel="noopener noreferrer">${c.directions} ${arrow}</a><p>${c.hours}<br>9:30–14:00 · 16:00–20:00</p></div>
     <div><h2>${c.contactLabel}</h2><a href="tel:${clinic.phone}">+34 911 645 198</a><a href="tel:${clinic.mobile}">+34 646 352 139</a><a class="email-link" href="mailto:${clinic.email}">${clinic.email}</a><a href="${wa(lang)}">WhatsApp ${arrow}</a></div>
     </div><div class="container footer-bottom"><span>© ${new Date().getFullYear()} Seul Acupuntura</span><a href="${route(lang, 'privacy')}">${c.privacy}</a><p>${c.health}</p></div></footer>
-    <div class="mobile-contact"><a href="tel:${clinic.phone}">${lang === 'es' ? 'Llamar' : 'Call'}</a><a href="${wa(lang)}">${c.appointment} · WhatsApp ${arrow}</a></div>`;
+    <div class="contact-dock"><a class="dock-call" href="tel:${clinic.phone}" aria-label="${c.call}">${phoneIcon}<span>${lang === 'es' ? 'Llamar' : 'Call'}</span></a><a class="dock-wa" href="${wa(lang)}">${waIcon}<span>${c.appointment} · WhatsApp</span></a></div>`;
 }
 
 function cards(lang, items = treatments) {
@@ -84,13 +89,56 @@ function plan(lang) {
   </div></section>`;
 }
 
+function reviewCard(lang, review, index) {
+  const c = copy[lang];
+  const translated = review.lang !== lang;
+  const initial = [...review.author.trim()][0].toUpperCase();
+  return `<li class="review-slide"><figure class="review-card">
+      <figcaption class="review-card-top"><span class="avatar avatar-${index % 6}" aria-hidden="true">${escape(initial)}</span><span class="review-author"><strong>${escape(review.author)}</strong><span>${review.note ? c.localGuide : c.reviewSource}</span></span>${googleG('google-g review-card-g')}</figcaption>
+      <div class="review-stars" role="img" aria-label="${c.starLabel(review.stars)}">${stars(review.stars)}</div>
+      <blockquote lang="${lang}"><p>${escape(review[lang])}</p></blockquote>
+      ${translated ? `<small class="translation-note">${c.translated}</small><details class="quote-original"><summary>${c.original}</summary><p lang="${review.lang}">${escape(review[review.lang])}</p></details>` : ''}
+    </figure></li>`;
+}
+
 function reviews(lang) {
   const c = copy[lang];
+  const score = lang === 'es' ? '4,9' : '4.9';
   return `<section class="section reviews" id="opiniones"><div class="container">
-    <div class="section-heading review-heading"><div><p class="eyebrow">${c.reviewEyebrow}</p><h2>${c.reviewTitle}</h2></div><a class="review-score" href="${clinic.maps}" target="_blank" rel="noopener noreferrer" aria-label="${c.readReviews}"><span class="review-score-number">${lang === 'es' ? '4,9' : '4.9'}</span><span class="review-score-stars" aria-label="${lang === 'es' ? 'sobre 5 estrellas' : 'out of 5 stars'}">★★★★★</span><span class="review-score-count">${clinic.reviewCount} ${c.reviewLabel} ${arrow}</span></a></div>
-    <div class="quote-grid">${c.quotes.map(review => `<figure class="review-card"><div class="review-stars" aria-label="${c.starLabel}">★★★★★</div><blockquote lang="${lang}">${review.quote}</blockquote>${lang === 'es' ? `<small class="translation-note">${c.translated}</small>` : ''}<figcaption><strong>${review.author}</strong><span>${review.note}</span></figcaption>${lang === 'es' ? `<details class="quote-original"><summary>${c.original}</summary><p lang="en">${review.original}</p></details>` : ''}</figure>`).join('')}</div>
-    <div class="review-bottom"><p class="review-summary">${c.reviewSummary}</p><a class="text-link" href="${clinic.maps}" target="_blank" rel="noopener noreferrer">${c.readReviews}${arrow}</a><p class="small">${c.reviewDisclosure}<br>${c.reviewDate}</p></div>
+    <div class="review-heading"><div><p class="eyebrow eyebrow-google">${googleG()}<span>${c.reviewEyebrow}</span></p><h2>${c.reviewTitle}</h2><p class="review-lead">${c.reviewLead}</p></div>
+    <a class="review-score" href="${clinic.maps}" target="_blank" rel="noopener noreferrer" aria-label="${c.scoreLabel}"><span class="review-score-brand">${googleG()}<span>Google</span></span><span class="review-score-number" data-count="${clinic.rating}">${score}</span><span class="review-score-stars" aria-hidden="true">★★★★★</span><span class="review-score-count"><span data-count="${clinic.reviewCount}">${clinic.reviewCount}</span> ${c.reviewLabel}</span><span class="review-score-five">${c.fiveStars} ${arrow}</span></a></div>
+    <div class="review-carousel" data-carousel>
+      <ul class="review-track" tabindex="0" aria-label="${c.carousel.label}">${reviewItems.map((review, i) => reviewCard(lang, review, i)).join('')}</ul>
+      <div class="carousel-controls" hidden><button type="button" class="carousel-button" data-prev aria-label="${c.carousel.prev}"><span aria-hidden="true">←</span></button><div class="carousel-progress" aria-hidden="true"><span></span></div><span class="carousel-status" aria-hidden="true">1 / ${reviewItems.length}</span><button type="button" class="carousel-toggle" data-toggle data-pause="${c.carousel.pause}" data-play="${c.carousel.play}">${c.carousel.pause}</button><button type="button" class="carousel-button" data-next aria-label="${c.carousel.next}"><span aria-hidden="true">→</span></button></div>
+    </div>
+    <div class="review-bottom"><p class="review-summary">${c.reviewSummary}</p><a class="button button-google" href="${clinic.maps}" target="_blank" rel="noopener noreferrer">${googleG()}${c.readReviews}${arrow}</a><p class="small">${c.reviewDisclosure}<br>${c.reviewDate}</p></div>
   </div></section>`;
+}
+
+function cvRows(lang, items) {
+  return `<ul class="cv-list">${items.map(item => `<li><span class="cv-place">${item.place}${item.where ? `<span>${item.where[lang]}</span>` : ''}</span>${item.role ? `<span class="cv-role">${item.role[lang]}</span>` : ''}</li>`).join('')}</ul>`;
+}
+
+function curriculum(lang) {
+  const c = copy[lang];
+  return `<section class="section cv" id="curriculum"><div class="container cv-grid">
+    <figure class="cv-photo">${image('dr-shim', c.cvPhotoAlt, 'cv-image')}<figcaption>${c.cvPhotoCaption}</figcaption></figure>
+    <div class="cv-content"><p class="eyebrow">${c.cvEyebrow}</p><h2>${c.cvTitle}</h2><p class="lead">${c.cvLead}</p>
+      <div class="cv-groups">
+        <div class="cv-group"><h3>${c.cvEducation}</h3>${cvRows(lang, cv.education)}</div>
+        <div class="cv-group"><h3>${c.cvCareer}</h3>${cvRows(lang, cv.career)}</div>
+        <div class="cv-group"><h3>${c.cvMemberships}</h3><ul class="cv-members">${cv.memberships[lang].map(item => `<li>${item}</li>`).join('')}</ul></div>
+      </div>
+      <p class="cv-needles">${needleIcon}<span>${c.cvNeedles}</span></p>
+      <p class="small notice">${c.credentials}</p><p class="small">${c.cvSource}</p>
+    </div>
+  </div></section>`;
+}
+
+function cvHighlights(lang) {
+  const c = copy[lang];
+  const items = [cv.education[2], cv.education[3], cv.career[0]];
+  return `<ul class="cv-highlights">${items.map(item => `<li><span class="cv-hl-label">${item.role[lang]}</span><span>${item.place}${item.where ? ` · ${item.where[lang]}` : ''}</span></li>`).join('')}<li><span class="cv-hl-label">${c.cvHygiene}</span><span>${c.cvNeedles}</span></li></ul>`;
 }
 
 function prices(lang) {
@@ -115,12 +163,12 @@ function finalCTA(lang) {
 
 function home(lang) {
   const c = copy[lang];
-  return `<section class="hero"><div class="container hero-grid"><div class="hero-copy"><p class="eyebrow">${c.eyebrow}</p><h1>${c.hero}</h1><p class="hero-intro">${c.intro}</p><a class="hero-rating-link" href="#opiniones"><span aria-hidden="true">★★★★★</span> ${c.heroRating}</a><div class="hero-actions">${button(lang)}<p class="small">${c.cue}</p></div></div>
+  return `<section class="hero"><div class="container hero-grid"><div class="hero-copy"><p class="eyebrow">${c.eyebrow}</p><h1>${c.hero}</h1><p class="hero-intro">${c.intro}</p><a class="hero-rating-link" href="#opiniones">${googleG()}<span class="hero-stars" aria-hidden="true">★★★★★</span> ${c.heroRating}</a><div class="hero-actions">${button(lang)}<p class="small">${c.cue}</p></div></div>
     <figure class="hero-figure">${image('equipo', c.caption, 'hero-image', true)}<figcaption>${c.caption}</figcaption></figure>
   </div></section>${reviews(lang)}
   <section class="section problem"><div class="container problem-grid"><div><p class="eyebrow">${c.problemEyebrow}</p><h2>${c.problemTitle}</h2></div><div><p class="lead">${c.problemText}</p><ul class="concerns">${c.concerns.map(q => `<li><span aria-hidden="true">↳</span>${q}</li>`).join('')}</ul></div></div></section>
   <section class="section services"><div class="container"><div class="section-heading heading-split"><div><p class="eyebrow">${c.servicesEyebrow}</p><h2>${c.servicesTitle}</h2></div><p>${c.servicesText}</p></div>${cards(lang, treatments.slice(0, 3))}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>
-  <section class="section team-feature"><div class="container team-grid"><figure>${image('cabinet', c.caption)}<figcaption>${c.teamCaption}</figcaption></figure><div class="team-copy"><p class="eyebrow">${c.teamEyebrow}</p><h2>${c.teamTitle}</h2><p>${c.teamText}</p><a class="text-link" href="${route(lang, 'team')}">${c.teamLink}${arrow}</a></div></div></section>
+  <section class="section team-feature"><div class="container team-grid"><figure class="team-photo">${image('dr-shim', c.cvPhotoAlt)}<figcaption>${c.cvPhotoCaption}</figcaption></figure><div class="team-copy"><p class="eyebrow">${c.teamEyebrow}</p><h2>${c.teamTitle}</h2><p>${c.teamText}</p>${cvHighlights(lang)}<a class="text-link" href="${route(lang, 'team')}#curriculum">${c.cvLink}${arrow}</a></div></div></section>
   ${plan(lang)}${prices(lang)}${faq(lang)}${location(lang)}${finalCTA(lang)}`;
 }
 
@@ -131,8 +179,9 @@ function pageHero(lang, title, lead, eyebrow, photo, alt) {
 function team(lang) {
   const c = copy[lang];
   return `${pageHero(lang, c.teamPageTitle, c.teamLead, c.teamEyebrow, 'equipo', c.caption)}
-  <section class="section"><div class="container bio-grid"><div><p class="eyebrow">SEUL ACUPUNTURA</p><h2>${c.teamBioTitle}</h2><p>${c.teamBio}</p><h3>${c.shim}</h3><p class="eyebrow">${c.shimRole}</p><p>${c.shimBio}</p><p class="small notice">${c.credentials}</p></div><ol class="timeline">${c.timeline.map(([year, title]) => `<li><span>${year}</span><h3>${title}</h3></li>`).join('')}</ol></div></section>
-  <section class="section gallery"><div class="container"><div class="section-heading"><p class="eyebrow">SEUL · MADRID</p><h2>${c.spaceTitle}</h2></div><div class="gallery-grid">${['consulta', 'sala', 'detalle'].map((file, i) => `<figure>${image(file, c.galleryAlts[i])}<figcaption>${c.galleryAlts[i]}</figcaption></figure>`).join('')}</div></div></section>${finalCTA(lang)}`;
+  <section class="section"><div class="container bio-grid"><div><p class="eyebrow">SEUL ACUPUNTURA</p><h2>${c.teamBioTitle}</h2><p>${c.teamBio}</p><h3>${c.shim}</h3><p class="eyebrow">${c.shimRole}</p><p>${c.shimBio}</p><a class="text-link" href="#curriculum">${c.cvLink}${arrow}</a></div><ol class="timeline">${c.timeline.map(([year, title]) => `<li><span>${year}</span><h3>${title}</h3></li>`).join('')}</ol></div></section>
+  ${curriculum(lang)}${reviews(lang)}
+  <section class="section gallery"><div class="container"><div class="section-heading"><p class="eyebrow">SEUL · MADRID</p><h2>${c.spaceTitle}</h2></div><div class="gallery-grid">${[['cabinet', 3], ['consulta', 0], ['sala', 1], ['detalle', 2]].map(([file, i]) => `<figure>${image(file, c.galleryAlts[i])}<figcaption>${c.galleryAlts[i]}</figcaption></figure>`).join('')}</div></div></section>${finalCTA(lang)}`;
 }
 
 function training(lang) {
@@ -144,13 +193,14 @@ function training(lang) {
 function contact(lang) {
   const c = copy[lang];
   return `${pageHero(lang, c.contactTitle, c.contactLead, c.nav[3])}
-  <section class="section contact-section"><div class="container contact-grid"><div class="contact-panel"><p class="eyebrow">${c.contactLabel}</p>${button(lang)}<a class="contact-phone" href="tel:${clinic.phone}">+34 911 645 198 ${arrow}</a><a class="text-link" href="tel:${clinic.mobile}">+34 646 352 139 ${arrow}</a><a class="email-link" href="mailto:${clinic.email}">${clinic.email}</a><p class="small">${c.contactPrivacy}</p></div><div><h2>${c.appointmentTitle}</h2><ul class="check-list">${c.appointmentList.map(text => `<li>${text}</li>`).join('')}</ul><p class="notice">${c.finalCue}</p></div></div></section>${location(lang, true)}${prices(lang)}${faq(lang)}`;
+  <section class="section contact-section"><div class="container contact-grid"><div class="contact-panel"><p class="eyebrow">${c.contactLabel}</p>${button(lang)}<a class="contact-phone" href="tel:${clinic.phone}">+34 911 645 198 ${arrow}</a><a class="text-link" href="tel:${clinic.mobile}">+34 646 352 139 ${arrow}</a><a class="email-link" href="mailto:${clinic.email}">${clinic.email}</a><p class="small">${c.contactPrivacy}</p></div><div><h2>${c.appointmentTitle}</h2><ul class="check-list">${c.appointmentList.map(text => `<li>${text}</li>`).join('')}</ul><p class="notice">${c.finalCue}</p></div></div></section>${reviews(lang)}${location(lang, true)}${prices(lang)}${faq(lang)}`;
 }
 
 function treatmentPage(lang, item) {
   const c = copy[lang];
   return `${pageHero(lang, item.name[lang], item.short[lang], c.servicesEyebrow)}
   <section class="section"><div class="container technique-layout"><article><p class="eyebrow">${c.technique}</p><h2>${lang === 'es' ? 'En qué consiste' : 'What it involves'}</h2><p class="lead">${item.detail[lang]}</p><h3>${c.precaution}</h3><p>${item.consider[lang]}</p><p class="notice small">${c.techniqueNote}</p></article><aside class="technique-aside">${techniqueIcon(treatments.indexOf(item))}<h2>${c.before}</h2><p>${lang === 'es' ? 'Una primera valoración permite hablar de tu caso antes de elegir una técnica.' : 'An initial assessment gives you a chance to discuss your situation before choosing a technique.'}</p>${button(lang)}<p class="small">${c.cue}</p><a class="text-link" href="${route(lang, 'contact')}#tarifas">${c.pricesEyebrow}${arrow}</a></aside></div></section>
+  ${reviews(lang)}
   <section class="section services"><div class="container"><div class="section-heading"><h2>${c.otherTreatments}</h2></div>${cards(lang, treatments.filter(t => t.id !== item.id).slice(0, 3))}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>`;
 }
 
@@ -165,7 +215,7 @@ function privacy(lang, settings) {
   ${settings.hostingName ? `<p>${es ? 'Alojamiento' : 'Hosting'}: ${escape(settings.hostingName)}.</p>` : `<p class="notice">${es ? 'El proveedor de alojamiento y sus condiciones se deben identificar antes de publicar.' : 'The hosting provider and its terms must be identified before publication.'}</p>`}
   <h2>${es ? 'Contacto por servicios externos' : 'Contact through external services'}</h2><p>${es ? 'Los enlaces a WhatsApp, Google Maps y email abren servicios ajenos al sitio. Al utilizarlos se aplican las condiciones y políticas del proveedor elegido. Evita enviar información de salud sensible en un primer contacto. Las consultas recibidas serán atendidas por el centro.' : 'WhatsApp, Google Maps and email links open services outside this website. Their respective providers’ terms and privacy policies apply. Avoid sending sensitive health information in an initial enquiry. The practice handles the enquiries it receives.'}</p>
   <h2>${es ? 'Información sanitaria' : 'Health information'}</h2><p>${c.health} ${es ? 'Las técnicas descritas tienen evidencia e indicaciones variables. No interrumpas un tratamiento prescrito. En una urgencia, llama al 112.' : 'The techniques described have varying evidence and indications. Do not stop prescribed treatment. In an emergency, call 112.'}</p>
-  <h2>${es ? 'Fotografías y opiniones' : 'Photographs and reviews'}</h2><p>${es ? 'Las fotografías proceden del sitio original del centro y se reutilizan con autorización facilitada para este proyecto. La puntuación y los extractos de opiniones proceden de la ficha pública de Google, consultada el 15 de octubre de 2026. Las traducciones se identifican y el texto original se puede consultar junto a cada extracto.' : 'Photographs come from the practice’s original website and are reused with permission provided for this project. The rating and review excerpts come from the public Google listing, checked on 15 October 2026. Translations are labelled and the original text is available alongside each excerpt.'}</p>
+  <h2>${es ? 'Fotografías y opiniones' : 'Photographs and reviews'}</h2><p>${es ? 'Las fotografías proceden del sitio original del centro y se reutilizan con autorización facilitada para este proyecto. La fotografía del Dr. Shim y el currículum, tomado del folleto impreso del centro, se facilitaron para este proyecto el 18 de noviembre de 2026. La puntuación y los extractos de opiniones proceden de la ficha pública de Google, consultada el 18 de noviembre de 2026; se muestran el nombre público de cada autor y su texto sin corregir. Las traducciones se identifican y el texto original se puede consultar junto a cada extracto.' : 'Photographs come from the practice’s original website and are reused with permission provided for this project. Dr. Shim’s photograph and the CV, taken from the practice’s printed brochure, were provided for this project on 18 November 2026. The rating and review excerpts come from the public Google listing, checked on 18 November 2026; each author’s public name and uncorrected text are shown. Translations are labelled and the original text is available alongside each excerpt.'}</p>
   ${settings.privacyDetails ? `<h2>${es ? 'Tratamiento de consultas y derechos' : 'Enquiries and privacy rights'}</h2><p>${escape(settings.privacyDetails)}</p>` : `<p class="notice">${es ? 'Antes de publicar, el titular debe validar las bases jurídicas, plazos de conservación, destinatarios y procedimiento de ejercicio de derechos aplicables a las consultas que recibe.' : 'Before publication, the operator must validate the lawful bases, retention periods, recipients and rights procedure applicable to the enquiries it receives.'}</p>`}
   </article></section>`;
 }
@@ -177,7 +227,7 @@ export function render(lang, key, settings = {}) {
   let main;
   switch (key) {
     case 'home': main = home(lang); break;
-    case 'treatments': main = `${pageHero(lang, c.treatmentTitle, c.treatmentLead, c.servicesEyebrow)}<section class="section all-treatments"><div class="container">${cards(lang)}</div></section>${plan(lang)}${finalCTA(lang)}`; break;
+    case 'treatments': main = `${pageHero(lang, c.treatmentTitle, c.treatmentLead, c.servicesEyebrow)}<section class="section all-treatments"><div class="container">${cards(lang)}</div></section>${reviews(lang)}${plan(lang)}${finalCTA(lang)}`; break;
     case 'team': main = team(lang); break;
     case 'training': main = training(lang); break;
     case 'contact': main = contact(lang); break;

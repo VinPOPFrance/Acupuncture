@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
-import { routes, treatments, clinic } from '../src/content.mjs';
+import { routes, treatments, clinic, reviews, cv } from '../src/content.mjs';
 import { render, route } from '../src/templates.mjs';
 
 const root = new URL('../', import.meta.url);
@@ -60,9 +60,9 @@ test('contact and training links open the correct channel without promising a co
 
 test('prices, assessment exclusions and sourced review data are preserved', () => {
   const html = render('es', 'home');
-  for (const text of ['232', '4,9', '60 €', '270 €', '500 €', 'No incluye tratamiento.', '15 de octubre de 2026', 'Traducción del original en inglés.', 'J.Ch424', 'Erica Esteban']) assert.ok(html.includes(text), text);
-  assert.ok(html.includes("He's by far one of the best acupuncturist I've been to…"));
-  assert.ok(html.includes("I can't speak highly enough of Dr. Shim and his acupuncture clinic."));
+  for (const text of ['234', '4,9', '60 €', '270 €', '500 €', 'No incluye tratamiento.', '18 de noviembre de 2026', 'Traducción del original en inglés.', 'J.Ch424', 'Erica Esteban']) assert.ok(html.includes(text), text);
+  assert.ok(html.includes('He&#39;s by far one of the best acupuncturist I&#39;ve been to'));
+  assert.ok(html.includes('I can&#39;t speak highly enough of Dr. Shim and his acupuncture clinic.'));
   assert.ok(!html.includes('Adrien Coutant'));
   assert.ok(!html.includes('garantizamos') && !html.includes('curación'));
   assert.ok(render('en', 'home').includes('confirm the language of your consultation'));
@@ -78,14 +78,65 @@ test('Google reviews follow the hero, are visible in both languages and use loca
     assert.ok(hero >= 0 && hero < reviews && reviews < problem);
     assert.match(html, /class="hero-rating-link" href="#opiniones"/);
     assert.match(html, /4[,.]9 (?:sobre 5|out of 5)/);
-    assert.match(html, /232/);
+    assert.match(html, /234/);
     assert.match(html, /class="review-card"/);
     assert.match(html, /href="https:\/\/www\.google\.com\/maps\?cid=/);
-    assert.ok(html.includes(lang === 'es' ? '15 de octubre de 2026' : '15 October 2026'));
+    assert.ok(html.includes(lang === 'es' ? '18 de noviembre de 2026' : '18 November 2026'));
     assert.match(html, /href="\/editorial\.css"/);
   }
-  assert.match(es, /lang="en">He's by far one of the best acupuncturist I've been to…/);
-  assert.match(es, /lang="es">«Es, con diferencia/);
+  assert.match(es, /<p lang="en">He&#39;s by far one of the best acupuncturist/);
+  assert.match(es, /<blockquote lang="es"><p>Es, con diferencia/);
+  assert.match(en, /<blockquote lang="en"><p>He&#39;s by far/);
+});
+
+test('Google reviews form a carousel with the Google mark, translations and accessible controls', () => {
+  assert.ok(reviews.length >= 25, 'At least 25 reviews in the carousel');
+  for (const review of reviews) {
+    assert.ok(['es', 'en'].includes(review.lang), review.author);
+    assert.ok(review.es?.length > 20 && review.en?.length > 20, `${review.author} needs both languages`);
+    assert.ok(review.stars >= 1 && review.stars <= 5, review.author);
+  }
+  assert.ok(!reviews.some(review => review.author === 'Adrien Coutant'));
+  for (const lang of ['es', 'en']) {
+    for (const key of ['home', 'treatments', 'team', 'contact', 'acupuncture']) {
+      const html = render(lang, key);
+      assert.equal((html.match(/class="review-card"/g) || []).length, reviews.length, `${lang}/${key}`);
+      assert.equal((html.match(/id="opiniones"/g) || []).length, 1, `${lang}/${key}`);
+      assert.match(html, /<div class="review-carousel" data-carousel>/);
+      assert.match(html, /<ul class="review-track" tabindex="0" aria-label="[^"]+">/);
+      assert.match(html, /<div class="carousel-controls" hidden>/);
+      assert.match(html, /fill="#4285F4"/, 'Google logo');
+      const translated = reviews.filter(review => review.lang !== lang).length;
+      assert.equal((html.match(/class="quote-original"/g) || []).length, translated, `${lang}/${key} originals`);
+    }
+  }
+});
+
+test('the CV and the new photo of Dr. Shim are published in both languages', () => {
+  for (const lang of ['es', 'en']) {
+    const team = render(lang, 'team');
+    assert.match(team, /<section class="section cv" id="curriculum">/);
+    assert.match(team, /src="\/images\/dr-shim\.jpg"[^>]*width="991" height="1100"/);
+    for (const item of [...cv.education, ...cv.career]) assert.ok(team.includes(item.place), item.place);
+    for (const membership of cv.memberships[lang]) assert.ok(team.includes(membership), membership);
+    assert.ok(team.includes(lang === 'es' ? 'Usamos agujas desechables.' : 'We use disposable needles.'));
+    assert.ok(team.includes(lang === 'es' ? 'No implica una acreditación como médico en España.' : 'does not imply accreditation as a medical doctor in Spain'));
+    const home = render(lang, 'home');
+    assert.ok(home.includes(`href="${route(lang, 'team')}#curriculum"`));
+    assert.match(home, /src="\/images\/dr-shim\.jpg"/);
+  }
+});
+
+test('every page shows the call and WhatsApp dock with the WhatsApp logo', () => {
+  for (const lang of ['es', 'en']) {
+    for (const key of keys) {
+      const html = render(lang, key);
+      assert.match(html, /<div class="contact-dock"><a class="dock-call" href="tel:\+34911645198"/, `${lang}/${key}`);
+      assert.match(html, /<a class="dock-wa" href="https:\/\/wa\.me\/34646352139\?text=[^"]+"><svg class="wa-icon"/, `${lang}/${key}`);
+      assert.ok(!html.includes('mobile-contact'), `${lang}/${key}`);
+      assert.ok(!/ style="/.test(html), `${lang}/${key}: inline styles are blocked by the CSP`);
+    }
+  }
 });
 
 test('location section includes an accessible Google map and privacy disclosure', () => {

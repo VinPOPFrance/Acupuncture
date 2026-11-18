@@ -125,10 +125,6 @@ figcaption { font-size: 11px; color: var(--muted); padding-top: 12px; }
 .steps p { font-size: 14px; color: #d5dacd; }
 .plan-action { display: flex; gap: 25px; align-items: center; margin-top: 35px; }
 .plan-action .small { color: #d5dacd; max-width: 300px; }
-.review-score { display: flex; flex-direction: column; flex-shrink: 0; align-items: flex-start; }
-.review-score > span:first-child { font: 54px/1.1 var(--serif); }
-.review-score small { font-size: 21px; color: var(--muted); margin-left: 5px; }
-.review-score a { font-size: 11px; margin-top: 7px; }
 .quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
 .quote { border-top: 1px solid var(--line); padding: 22px 0 0; }
 .quote-mark { color: var(--rust); font: 62px/.8 var(--serif); display: block; margin-top: 12px; }
@@ -189,7 +185,6 @@ figcaption { font-size: 11px; color: var(--muted); padding-top: 12px; }
 .footer-grid > div > p { margin-top: 13px; }
 .footer-bottom { display: flex; flex-wrap: wrap; gap: 14px 30px; align-items: center; border-top: 1px solid var(--line); padding-top: 20px; margin-top: 45px; font-size: 10px; color: var(--muted); }
 .footer-bottom > p { margin: 0 0 0 auto; font-size: 9px; max-width: 450px; }
-.mobile-contact { display: none; }
 .page-hero { padding: 80px 0; border-bottom: 1px solid var(--line); }
 .page-hero h1 { max-width: 930px; font-size: clamp(43px, 5vw, 72px); }
 .page-hero .lead { max-width: 620px; color: var(--muted); font-size: 19px; }
@@ -286,7 +281,6 @@ figcaption { font-size: 11px; color: var(--muted); padding-top: 12px; }
   .treatment-card p { font-size: 13px; }
   .steps { gap: 28px; }
   .steps h3 { font-size: 23px; }
-  .review-score > span:first-child { font-size: 45px; }
   .quote blockquote p { font-size: 22px; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 35px; }
   .page-hero { padding-block: 60px; }
@@ -356,7 +350,6 @@ figcaption { font-size: 11px; color: var(--muted); padding-top: 12px; }
   .steps p { grid-column: 2; margin-bottom: 5px; font-size: 14px; }
   .plan-action { align-items: flex-start; flex-direction: column; gap: 15px; margin-top: 28px; }
   .plan-action .small { font-size: 11px; }
-  .review-score { margin-top: 25px; }
   .quote-grid { grid-template-columns: 1fr; gap: 25px; }
   .quote blockquote p { min-height: auto; font-size: 25px; }
   .review-bottom { display: block; margin-top: 30px; }
@@ -388,9 +381,6 @@ figcaption { font-size: 11px; color: var(--muted); padding-top: 12px; }
   .footer-grid > div > a:not(.brand) { min-height: 35px; }
   .footer-bottom { margin-top: 30px; font-size: 9px; gap: 14px; }
   .footer-bottom > p { max-width: none; }
-  .mobile-contact { position: fixed; z-index: 25; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: .7fr 1.5fr; background: var(--paper); border-top: 1px solid var(--line); padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); gap: 8px; }
-  .mobile-contact a { display: flex; justify-content: center; align-items: center; min-height: 44px; font-size: 12px; text-decoration: none; border: 1px solid var(--line); }
-  .mobile-contact a:last-child { background: var(--rust); color: var(--white); border-color: var(--rust); gap: 8px; }
   .page-hero { padding-block: 45px; }
   .page-hero h1 { font-size: 46px; overflow-wrap: anywhere; }
   .page-hero .lead { font-size: 16px; margin-bottom: 0; }
