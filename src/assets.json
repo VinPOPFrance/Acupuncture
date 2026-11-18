@@ -63,5 +63,15 @@
     "file": "tecnica-tuina.jpg",
     "source": "https://static.wixstatic.com/media/02ad76_644b728ec65e4f8aadaeee0ee94d3bbb~mv2.jpg",
     "page": "https://www.seulacupuntura.com/tuina"
+  },
+  {
+    "file": "logo-seul.png",
+    "source": "https://static.wixstatic.com/media/02ad76_86f1924e82f94d9894e36f29004eee68~mv2.png",
+    "page": "https://www.seulacupuntura.com/"
+  },
+  {
+    "file": "logo-seul-mark.png",
+    "source": "https://static.wixstatic.com/media/02ad76_bfe7d5da767b4305a776348e999ae688~mv2.png",
+    "page": "https://www.seulacupuntura.com/"
   }
 ]

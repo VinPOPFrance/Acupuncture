@@ -277,3 +277,13 @@ test('every WhatsApp button uses the dock style with the WhatsApp logo and no ar
     }
   }
 });
+
+test('the Seul Acupuntura logo is in the header and footer of every page, and is the favicon', () => {
+  for (const lang of ['es', 'en']) {
+    for (const key of keys) {
+      const html = render(lang, key);
+      assert.equal((html.match(/<img class="brand-logo" src="\/images\/logo-seul\.png" alt="Seul Acupuntura" width="368" height="83">/g) || []).length, 2, `${lang}/${key}`);
+      assert.ok(html.includes('<link rel="icon" type="image/png" href="/images/logo-seul-mark.png">'), `${lang}/${key}`);
+    }
+  }
+});

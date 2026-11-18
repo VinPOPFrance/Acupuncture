@@ -15,6 +15,7 @@ const waIcon = '<svg class="wa-icon" viewBox="0 0 24 24" aria-hidden="true" focu
 const googleG = (cls = 'google-g') => `<svg class="${cls}" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
 const phoneIcon = '<svg class="phone-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M6.6 3.5h-2a1.6 1.6 0 0 0-1.6 1.7 17 17 0 0 0 15.8 15.8 1.6 1.6 0 0 0 1.7-1.6v-2a1 1 0 0 0-.8-1l-3.6-.8a1 1 0 0 0-1 .3l-1.4 1.6a12.7 12.7 0 0 1-5.6-5.6l1.6-1.4a1 1 0 0 0 .3-1l-.8-3.6a1 1 0 0 0-1-.8Z"/></svg>';
 const needleIcon = '<svg class="needle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M4 20 18.5 5.5M16 4l4 4M14.5 6.5l3 3M4 20l-1 1"/></svg>';
+const logo = '<img class="brand-logo" src="/images/logo-seul.png" alt="Seul Acupuntura" width="368" height="83">';
 const stars = (n) => `${'★'.repeat(n)}<span class="star-off">${'★'.repeat(5 - n)}</span>`;
 const wa = (lang, training = false) => {
   const message = training
@@ -58,7 +59,7 @@ function header(lang, key) {
   return `<a class="skip" href="#main">${c.skip}</a>
   <div class="topline"><div class="container"><span>Madrid · Retiro</span><a href="tel:${clinic.phone}">+34 911 645 198</a></div></div>
   <header class="header"><div class="scroll-progress" aria-hidden="true"></div><div class="container header-inner">
-    <a class="brand" href="${route(lang, 'home')}" aria-label="Seul Acupuntura · ${lang === 'es' ? 'Inicio' : 'Home'}"><span class="brand-name">Seul</span><span class="brand-detail">ACUPUNTURA · MADRID</span></a>
+    <a class="brand" href="${route(lang, 'home')}" aria-label="Seul Acupuntura · ${lang === 'es' ? 'Inicio' : 'Home'}">${logo}</a>
     <button class="menu-toggle" hidden aria-controls="navigation" aria-expanded="false" data-open="${c.menu}" data-close="${c.close}">${c.menu}<span aria-hidden="true">☰</span></button>
     <nav id="navigation" aria-label="${lang === 'es' ? 'Principal' : 'Main'}">
       ${['treatments', 'team', 'training', 'contact'].map((item, i) => `<a href="${route(lang, item)}" ${key === item || (item === 'treatments' && treatments.some(t => t.id === key)) ? 'aria-current="page"' : ''}>${c.nav[i]}</a>`).join('')}
@@ -71,7 +72,7 @@ function header(lang, key) {
 function footer(lang) {
   const c = copy[lang];
   return `<footer class="footer"><div class="container footer-grid">
-    <div><a class="brand footer-brand" href="${route(lang, 'home')}"><span class="brand-name">Seul</span><span class="brand-detail">ACUPUNTURA · MADRID</span></a><p>${c.footerLine}</p></div>
+    <div><a class="brand footer-brand" href="${route(lang, 'home')}" aria-label="Seul Acupuntura · ${lang === 'es' ? 'Inicio' : 'Home'}">${logo}</a><p>${c.footerLine}</p></div>
     <div><h2>${c.explore}</h2>${['treatments', 'team', 'training', 'contact'].map((item, i) => `<a href="${route(lang, item)}">${c.nav[i]}</a>`).join('')}</div>
     <div><h2>${c.visit}</h2><address>${clinic.address}<br>${clinic.postcode}</address><a href="${clinic.maps}" target="_blank" rel="noopener noreferrer">${c.directions} ${arrow}</a><p>${c.hours}<br>9:30–14:00 · 16:00–20:00</p></div>
     <div><h2>${c.contactLabel}</h2><a href="tel:${clinic.phone}">+34 911 645 198</a><a href="tel:${clinic.mobile}">+34 646 352 139</a><a class="email-link" href="mailto:${clinic.email}">${clinic.email}</a><a href="${wa(lang)}">WhatsApp ${arrow}</a></div>
@@ -270,10 +271,10 @@ export function render(lang, key, settings = {}) {
   <meta name="robots" content="${settings.publish ? 'index, follow' : 'noindex, nofollow'}"><meta name="theme-color" content="#f8f7f2">
   ${canonical ? `<link rel="canonical" href="${escape(canonical)}">${['es', 'en'].map(l => `<link rel="alternate" hreflang="${l}" href="${escape(settings.origin + route(l, key))}">`).join('')}<link rel="alternate" hreflang="x-default" href="${escape(settings.origin + route('es', key))}">` : ''}
   <meta property="og:type" content="website"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:locale" content="${lang === 'es' ? 'es_ES' : 'en_GB'}">${canonical ? `<meta property="og:url" content="${escape(canonical)}"><meta property="og:image" content="${escape(settings.origin)}/images/equipo.jpg">` : ''}
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/editorial.css"><script src="/app.js" defer></script></head>
+  <link rel="icon" type="image/png" href="/images/logo-seul-mark.png"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/editorial.css"><script src="/app.js" defer></script></head>
   <body>${header(lang, key)}<main id="main" tabindex="-1">${main}</main>${footer(lang)}</body></html>`;
 }
 
 export function notFound() {
-  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>404 · Seul Acupuntura</title><meta name="robots" content="noindex"><link rel="stylesheet" href="/styles.css"><link rel="icon" href="/favicon.svg"></head><body><main class="not-found"><p class="eyebrow">SEUL ACUPUNTURA · 404</p><h1>Esta página<br><em>no está aquí.</em></h1><p>This page could not be found.</p><a class="button" href="/">Volver al inicio ↗</a><a class="text-link" href="/en/">English homepage ↗</a></main></body></html>`;
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>404 · Seul Acupuntura</title><meta name="robots" content="noindex"><link rel="stylesheet" href="/styles.css"><link rel="icon" type="image/png" href="/images/logo-seul-mark.png"></head><body><main class="not-found"><p class="eyebrow">SEUL ACUPUNTURA · 404</p><h1>Esta página<br><em>no está aquí.</em></h1><p>This page could not be found.</p><a class="button" href="/">Volver al inicio ↗</a><a class="text-link" href="/en/">English homepage ↗</a></main></body></html>`;
 }
