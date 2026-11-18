@@ -110,6 +110,11 @@ L'équipe présente le currículum du Dr Shim et de la Dra Park (`#curriculum`).
   lui-même et les avis promettant une guérison, l'évitement d'une chirurgie ou
   un résultat sur une maladie grave. Les témoignages ne sont pas présentés comme
   une preuve d'efficacité.
+- Photos des techniques (18 novembre 2026) : la photo unique de chaque page
+  technique du site actuel (`/acupuntura`, `/moxibustion`, etc.), listée dans
+  [src/assets.json](src/assets.json). Celle de la manopuntura est un schéma de la
+  main, cadré à gauche par CSS (`img-left`). Plusieurs semblent issues de banques
+  d'images : vérifier les licences avant une publication officielle.
 - Currículum : dépliant imprimé du centre photographié par l'utilisateur le
   18 novembre 2026, reproduit sans ajout. La ligne « Miembro de Médico en
   China » du dépliant est rendue par « Miembro médico en China » : à faire

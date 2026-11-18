@@ -28,5 +28,40 @@
     "file": "formacion.jpg",
     "source": "https://static.wixstatic.com/media/02ad76_37a87497a27941acb590c7ba13386529~mv2.jpg",
     "page": "https://www.seulacupuntura.com/cursos"
+  },
+  {
+    "file": "tecnica-acupuntura.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_bf808ea2d1304334aa26a8be97dc718b~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/acupuntura"
+  },
+  {
+    "file": "tecnica-moxibustion.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_ba3f2e7c95154980a76736780aa65403~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/moxibustion"
+  },
+  {
+    "file": "tecnica-ventosas.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_7101324ab1424951ac0f8e2e727ce3a2~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/ventosas"
+  },
+  {
+    "file": "tecnica-auriculopuntura.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_3c542d63d9f34dacbff6b3b7b623a5df~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/auriculopuntura"
+  },
+  {
+    "file": "tecnica-electropuntura.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_c87e75c366cc4d78897f8011e89d36da~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/electropuntura"
+  },
+  {
+    "file": "tecnica-manopuntura.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_bd11e7fc35664e70b037c268cf694ca8~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/manopuntura"
+  },
+  {
+    "file": "tecnica-tuina.jpg",
+    "source": "https://static.wixstatic.com/media/02ad76_644b728ec65e4f8aadaeee0ee94d3bbb~mv2.jpg",
+    "page": "https://www.seulacupuntura.com/tuina"
   }
 ]

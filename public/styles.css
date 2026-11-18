@@ -136,8 +136,6 @@ figcaption { font-size: 11px; color: var(--muted); padding-top: 12px; }
 .quote-original { font-size: 11px; color: var(--muted); }
 .quote-original summary { padding: 8px 0; }
 .quote-original p { padding: 10px 0; max-width: 470px; }
-.review-bottom { display: flex; align-items: center; gap: 50px; justify-content: space-between; margin-top: 35px; }
-.review-bottom .small { font-size: 10px; max-width: 420px; margin: 0; }
 .prices { border-block: 1px solid var(--line); }
 .prices-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 85px; }
 .price-footnote { font-size: 11px; color: var(--muted); max-width: 320px; margin-top: 30px; }
@@ -352,8 +350,6 @@ figcaption { font-size: 11px; color: var(--muted); padding-top: 12px; }
   .plan-action .small { font-size: 11px; }
   .quote-grid { grid-template-columns: 1fr; gap: 25px; }
   .quote blockquote p { min-height: auto; font-size: 25px; }
-  .review-bottom { display: block; margin-top: 30px; }
-  .review-bottom .small { margin-top: 20px; }
   .price-footnote { margin-top: 20px; max-width: none; }
   .prices-layout { gap: 15px; }
   .price-row > span { font-size: 24px; }

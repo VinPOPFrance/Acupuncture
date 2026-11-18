@@ -27,8 +27,15 @@ function button(lang, training = false) {
   return `<a class="button button-wa" href="${wa(lang, training)}">${waIcon}${training ? copy[lang].trainingBook : copy[lang].book}${arrow}</a>`;
 }
 
+const imageSizes = {
+  equipo: [1174, 747], sala: [1600, 900], formacion: [1500, 844], 'dr-shim': [991, 1100],
+  ...Object.fromEntries(treatments.map(item => [item.photo.file, item.photo.size])),
+};
+// The Korean hand acupuncture image is a wide chart: keep the left hand in frame.
+const photoClass = item => (item.id === 'hand' ? 'img-left' : '');
+
 function image(file, alt, cls = '', eager = false) {
-  const sizes = { equipo: [1174, 747], sala: [1600, 900], formacion: [1500, 844], 'dr-shim': [991, 1100] }[file] ?? [1600, 1066];
+  const sizes = imageSizes[file] ?? [1600, 1066];
   return `<img class="${cls}" src="/images/${file}.jpg" alt="${escape(alt)}" width="${sizes[0]}" height="${sizes[1]}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`;
 }
 
@@ -72,12 +79,28 @@ function footer(lang) {
     <div class="contact-dock"><a class="dock-call" href="tel:${clinic.phone}" aria-label="${c.call}">${phoneIcon}<span>${lang === 'es' ? 'Llamar' : 'Call'}</span></a><a class="dock-wa" href="${wa(lang)}">${waIcon}<span>${c.appointment} · WhatsApp</span></a></div>`;
 }
 
-function cards(lang, items = treatments) {
+function treatmentCard(lang, item) {
   const c = copy[lang];
-  return `<div class="treatment-grid">${items.map(item => `<a class="treatment-card" href="${route(lang, item.id)}">
-    <div class="card-top">${techniqueIcon(treatments.indexOf(item))}<span class="card-no">0${treatments.indexOf(item) + 1}</span></div>
-    <span class="eyebrow">${item.tag[lang]}</span><h3>${item.name[lang]}</h3><p>${item.short[lang]}</p><span class="text-link">${c.discover}${arrow}</span>
-  </a>`).join('')}</div>`;
+  return `<a class="treatment-card" href="${route(lang, item.id)}">
+    <span class="card-media">${image(item.photo.file, '', photoClass(item))}</span>
+    <span class="card-body"><span class="card-top"><span class="eyebrow">${item.tag[lang]}</span><span class="card-no">0${treatments.indexOf(item) + 1}</span></span><h3>${item.name[lang]}</h3><p>${item.short[lang]}</p><span class="text-link">${c.discover}${arrow}</span></span>
+  </a>`;
+}
+
+function cards(lang, items = treatments) {
+  return `<div class="treatment-grid">${items.map(item => treatmentCard(lang, item)).join('')}</div>`;
+}
+
+function carouselControls(labels, count, autoplay = false) {
+  return `<div class="carousel-controls" hidden><button type="button" class="carousel-button" data-prev aria-label="${labels.prev}"><span aria-hidden="true">←</span></button><div class="carousel-progress" aria-hidden="true"><span></span></div><span class="carousel-status" aria-hidden="true">1 / ${count}</span>${autoplay ? `<button type="button" class="carousel-toggle" data-toggle data-pause="${labels.pause}" data-play="${labels.play}">${labels.pause}</button>` : ''}<button type="button" class="carousel-button" data-next aria-label="${labels.next}"><span aria-hidden="true">→</span></button></div>`;
+}
+
+function treatmentCarousel(lang, items) {
+  const labels = copy[lang].treatmentCarousel;
+  return `<div class="treatment-carousel" data-carousel>
+    <ul class="carousel-track treatment-track" tabindex="0" aria-label="${labels.label}">${items.map(item => `<li class="carousel-slide">${treatmentCard(lang, item)}</li>`).join('')}</ul>
+    ${carouselControls(labels, items.length)}
+  </div>`;
 }
 
 function plan(lang) {
@@ -93,7 +116,7 @@ function reviewCard(lang, review, index) {
   const c = copy[lang];
   const translated = review.lang !== lang;
   const initial = [...review.author.trim()][0].toUpperCase();
-  return `<li class="review-slide"><figure class="review-card">
+  return `<li class="carousel-slide"><figure class="review-card">
       <figcaption class="review-card-top"><span class="avatar avatar-${index % 6}" aria-hidden="true">${escape(initial)}</span><span class="review-author"><strong>${escape(review.author)}</strong><span>${review.note ? c.localGuide : c.reviewSource}</span></span>${googleG('google-g review-card-g')}</figcaption>
       <div class="review-stars" role="img" aria-label="${c.starLabel(review.stars)}">${stars(review.stars)}</div>
       <blockquote lang="${lang}"><p>${escape(review[lang])}</p></blockquote>
@@ -107,11 +130,10 @@ function reviews(lang) {
   return `<section class="section reviews" id="opiniones"><div class="container">
     <div class="review-heading"><div><p class="eyebrow eyebrow-google">${googleG()}<span>${c.reviewEyebrow}</span></p><h2>${c.reviewTitle}</h2><p class="review-lead">${c.reviewLead}</p></div>
     <a class="review-score" href="${clinic.maps}" target="_blank" rel="noopener noreferrer" aria-label="${c.scoreLabel}"><span class="review-score-brand">${googleG()}<span>Google</span></span><span class="review-score-number" data-count="${clinic.rating}">${score}</span><span class="review-score-stars" aria-hidden="true">★★★★★</span><span class="review-score-count"><span data-count="${clinic.reviewCount}">${clinic.reviewCount}</span> ${c.reviewLabel}</span><span class="review-score-five">${c.fiveStars} ${arrow}</span></a></div>
-    <div class="review-carousel" data-carousel>
-      <ul class="review-track" tabindex="0" aria-label="${c.carousel.label}">${reviewItems.map((review, i) => reviewCard(lang, review, i)).join('')}</ul>
-      <div class="carousel-controls" hidden><button type="button" class="carousel-button" data-prev aria-label="${c.carousel.prev}"><span aria-hidden="true">←</span></button><div class="carousel-progress" aria-hidden="true"><span></span></div><span class="carousel-status" aria-hidden="true">1 / ${reviewItems.length}</span><button type="button" class="carousel-toggle" data-toggle data-pause="${c.carousel.pause}" data-play="${c.carousel.play}">${c.carousel.pause}</button><button type="button" class="carousel-button" data-next aria-label="${c.carousel.next}"><span aria-hidden="true">→</span></button></div>
+    <div class="review-carousel" data-carousel data-autoplay>
+      <ul class="carousel-track review-track" tabindex="0" aria-label="${c.carousel.label}">${reviewItems.map((review, i) => reviewCard(lang, review, i)).join('')}</ul>
+      ${carouselControls(c.carousel, reviewItems.length, true)}
     </div>
-    <div class="review-bottom"><p class="review-summary">${c.reviewSummary}</p><a class="button button-google" href="${clinic.maps}" target="_blank" rel="noopener noreferrer">${googleG()}${c.readReviews}${arrow}</a><p class="small">${c.reviewDisclosure}<br>${c.reviewDate}</p></div>
   </div></section>`;
 }
 
@@ -148,7 +170,7 @@ function prices(lang) {
 
 function faq(lang) {
   const c = copy[lang];
-  return `<section class="section faq"><div class="container faq-layout"><div><p class="eyebrow">${c.faqEyebrow}</p><h2>${c.faqTitle}</h2></div><div>${c.faq.map(([question, answer]) => `<details class="faq-item"><summary>${question}<span aria-hidden="true">+</span></summary><p>${answer}</p></details>`).join('')}</div></div></section>`;
+  return `<section class="section faq"><div class="container faq-layout"><div><p class="eyebrow">${c.faqEyebrow}</p><h2>${c.faqTitle}</h2></div><div>${c.faq.map(([question, answer], i) => `<details class="faq-item" id="faq-${i + 1}"><summary>${question}<span aria-hidden="true">+</span></summary><p>${answer}</p></details>`).join('')}</div></div></section>`;
 }
 
 function location(lang, full = false) {
@@ -166,14 +188,14 @@ function home(lang) {
   return `<section class="hero"><div class="container hero-grid"><div class="hero-copy"><p class="eyebrow">${c.eyebrow}</p><h1>${c.hero}</h1><p class="hero-intro">${c.intro}</p><a class="hero-rating-link" href="#opiniones">${googleG()}<span class="hero-stars" aria-hidden="true">★★★★★</span> ${c.heroRating}</a><div class="hero-actions">${button(lang)}<p class="small">${c.cue}</p></div></div>
     <figure class="hero-figure">${image('equipo', c.caption, 'hero-image', true)}<figcaption>${c.caption}</figcaption></figure>
   </div></section>${reviews(lang)}
-  <section class="section problem"><div class="container problem-grid"><div><p class="eyebrow">${c.problemEyebrow}</p><h2>${c.problemTitle}</h2></div><div><p class="lead">${c.problemText}</p><ul class="concerns">${c.concerns.map(q => `<li><span aria-hidden="true">↳</span>${q}</li>`).join('')}</ul></div></div></section>
-  <section class="section services"><div class="container"><div class="section-heading heading-split"><div><p class="eyebrow">${c.servicesEyebrow}</p><h2>${c.servicesTitle}</h2></div><p>${c.servicesText}</p></div>${cards(lang, treatments.slice(0, 3))}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>
+  <section class="section problem"><div class="container problem-grid"><div><p class="eyebrow">${c.problemEyebrow}</p><h2>${c.problemTitle}</h2></div><div><p class="lead">${c.problemText}</p><ul class="concerns">${c.concerns.map((q, i) => `<li><a href="${['#faq-2', '#faq-3', '#tarifas'][i]}"><span aria-hidden="true">↳</span>${q}</a></li>`).join('')}</ul></div></div></section>
+  <section class="section services"><div class="container"><div class="section-heading heading-split"><div><p class="eyebrow">${c.servicesEyebrow}</p><h2>${c.servicesTitle}</h2></div><p>${c.servicesText}</p></div>${treatmentCarousel(lang, treatments)}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>
   <section class="section team-feature"><div class="container team-grid"><figure class="team-photo">${image('dr-shim', c.cvPhotoAlt)}<figcaption>${c.cvPhotoCaption}</figcaption></figure><div class="team-copy"><p class="eyebrow">${c.teamEyebrow}</p><h2>${c.teamTitle}</h2><p>${c.teamText}</p>${cvHighlights(lang)}<a class="text-link" href="${route(lang, 'team')}#curriculum">${c.cvLink}${arrow}</a></div></div></section>
   ${plan(lang)}${prices(lang)}${faq(lang)}${location(lang)}${finalCTA(lang)}`;
 }
 
-function pageHero(lang, title, lead, eyebrow, photo, alt) {
-  return `<section class="page-hero"><div class="container ${photo ? 'page-hero-grid' : ''}"><div><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p class="lead">${lead}</p></div>${photo ? `<figure>${image(photo, alt, '', true)}</figure>` : ''}</div></section>`;
+function pageHero(lang, title, lead, eyebrow, photo, alt, cls = '') {
+  return `<section class="page-hero"><div class="container ${photo ? 'page-hero-grid' : ''}"><div><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p class="lead">${lead}</p></div>${photo ? `<figure>${image(photo, alt, cls, true)}</figure>` : ''}</div></section>`;
 }
 
 function team(lang) {
@@ -198,10 +220,10 @@ function contact(lang) {
 
 function treatmentPage(lang, item) {
   const c = copy[lang];
-  return `${pageHero(lang, item.name[lang], item.short[lang], c.servicesEyebrow)}
+  return `${pageHero(lang, item.name[lang], item.short[lang], c.servicesEyebrow, item.photo.file, item.photo.alt[lang], photoClass(item))}
   <section class="section"><div class="container technique-layout"><article><p class="eyebrow">${c.technique}</p><h2>${lang === 'es' ? 'En qué consiste' : 'What it involves'}</h2><p class="lead">${item.detail[lang]}</p><h3>${c.precaution}</h3><p>${item.consider[lang]}</p><p class="notice small">${c.techniqueNote}</p></article><aside class="technique-aside">${techniqueIcon(treatments.indexOf(item))}<h2>${c.before}</h2><p>${lang === 'es' ? 'Una primera valoración permite hablar de tu caso antes de elegir una técnica.' : 'An initial assessment gives you a chance to discuss your situation before choosing a technique.'}</p>${button(lang)}<p class="small">${c.cue}</p><a class="text-link" href="${route(lang, 'contact')}#tarifas">${c.pricesEyebrow}${arrow}</a></aside></div></section>
   ${reviews(lang)}
-  <section class="section services"><div class="container"><div class="section-heading"><h2>${c.otherTreatments}</h2></div>${cards(lang, treatments.filter(t => t.id !== item.id).slice(0, 3))}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>`;
+  <section class="section services"><div class="container"><div class="section-heading"><h2>${c.otherTreatments}</h2></div>${treatmentCarousel(lang, treatments.filter(t => t.id !== item.id))}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>`;
 }
 
 function privacy(lang, settings) {

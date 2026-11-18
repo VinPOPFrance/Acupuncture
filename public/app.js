@@ -26,6 +26,18 @@ if (menuButton && navigation) {
   matchMedia('(min-width: 851px)').addEventListener('change', () => setOpen(false));
 }
 
+/* Links to a FAQ question open its answer */
+const openDetails = (hash) => {
+  const target = hash.length > 1 && document.getElementById(decodeURIComponent(hash.slice(1)));
+  if (target instanceof HTMLDetailsElement) target.open = true;
+};
+document.addEventListener('click', (event) => {
+  const link = event.target.closest('a[href^="#"]');
+  if (link) openDetails(link.getAttribute('href'));
+});
+addEventListener('hashchange', () => openDetails(location.hash));
+openDetails(location.hash);
+
 /* Header shadow and reading progress */
 const header = document.querySelector('.header');
 const progress = document.querySelector('.scroll-progress');
@@ -50,7 +62,7 @@ onScroll();
 /* Reveal blocks as they scroll into view. Hidden states only exist in CSS
    when the visitor accepts motion, so content stays visible otherwise. */
 const revealGroups = [
-  '.section-heading', '.review-heading', '.review-carousel', '.review-bottom',
+  '.section-heading', '.review-heading', '[data-carousel]',
   '.problem-grid > *', '.treatment-card', '.team-copy > *', '.steps li', '.plan-action',
   '.prices-layout > div:first-child', '.price-row', '.faq-layout > div:first-child', '.faq-item',
   '.location-copy > *', '.location-map', '.final-grid > *', '.bio-grid > div > *', '.timeline li',
@@ -71,6 +83,7 @@ if (hasObserver) {
   for (const selector of revealGroups) {
     for (const element of document.querySelectorAll(selector)) {
       if (element.classList.contains('reveal') || element.closest('.hero, .page-hero')) continue;
+      if (!element.matches('[data-carousel]') && element.closest('[data-carousel]')) continue;
       const siblings = [...element.parentElement.children].filter((child) => child.matches(selector));
       element.classList.add('reveal');
       element.style.setProperty('--reveal-delay', `${Math.min(siblings.indexOf(element), 5) * 90}ms`);
@@ -110,9 +123,9 @@ if (hasObserver && counters.length && !reduceMotion.matches) {
   counters.forEach((counter) => counterObserver.observe(counter));
 }
 
-/* Review carousel: native horizontal scroll, enhanced with buttons, autoplay and drag */
+/* Carousels: native horizontal scroll, enhanced with buttons, drag and (reviews only) autoplay */
 for (const carousel of document.querySelectorAll('[data-carousel]')) {
-  const track = carousel.querySelector('.review-track');
+  const track = carousel.querySelector('.carousel-track');
   const slides = [...track.children];
   const controls = carousel.querySelector('.carousel-controls');
   const prev = carousel.querySelector('[data-prev]');
@@ -121,6 +134,7 @@ for (const carousel of document.querySelectorAll('[data-carousel]')) {
   const bar = carousel.querySelector('.carousel-progress > span');
   const status = carousel.querySelector('.carousel-status');
   if (!track || slides.length < 2 || !controls) continue;
+  const autoplay = carousel.hasAttribute('data-autoplay') && toggle;
 
   controls.hidden = false;
   carousel.classList.add('is-enhanced');
@@ -152,7 +166,7 @@ for (const carousel of document.querySelectorAll('[data-carousel]')) {
   addEventListener('resize', update);
   update();
 
-  let userPaused = reduceMotion.matches;
+  let userPaused = !autoplay || reduceMotion.matches;
   let hovering = false;
   let focused = false;
   let visible = false;
@@ -165,14 +179,14 @@ for (const carousel of document.querySelectorAll('[data-carousel]')) {
   };
   const setPaused = (paused) => {
     userPaused = paused;
-    toggle.textContent = paused ? toggle.dataset.play : toggle.dataset.pause;
+    if (toggle) toggle.textContent = paused ? toggle.dataset.play : toggle.dataset.pause;
     schedule();
   };
   setPaused(userPaused);
 
   prev.addEventListener('click', () => { go(-1); schedule(); });
   next.addEventListener('click', () => { go(1); schedule(); });
-  toggle.addEventListener('click', () => setPaused(!userPaused));
+  toggle?.addEventListener('click', () => setPaused(!userPaused));
   carousel.addEventListener('mouseenter', () => { hovering = true; schedule(); });
   carousel.addEventListener('mouseleave', () => { hovering = false; schedule(); });
   carousel.addEventListener('focusin', () => { focused = true; schedule(); });
@@ -189,7 +203,7 @@ for (const carousel of document.querySelectorAll('[data-carousel]')) {
   let dragStart = null;
   let moved = false;
   track.addEventListener('pointerdown', (event) => {
-    if (event.pointerType !== 'mouse' || event.button !== 0 || event.target.closest('summary, a, button')) return;
+    if (event.pointerType !== 'mouse' || event.button !== 0 || event.target.closest('summary, button')) return;
     dragStart = { x: event.clientX, left: track.scrollLeft };
     moved = false;
   });
@@ -200,10 +214,16 @@ for (const carousel of document.querySelectorAll('[data-carousel]')) {
     if (!moved) { moved = true; track.classList.add('is-dragging'); }
     track.scrollLeft = dragStart.left - delta;
   });
+  /* A drag over a card link must not also open the link */
+  track.addEventListener('click', (event) => {
+    if (moved) { event.preventDefault(); moved = false; }
+  }, true);
+  track.addEventListener('dragstart', (event) => event.preventDefault());
   addEventListener('pointerup', () => {
     if (!dragStart) return;
     dragStart = null;
     if (!moved) return;
+    setTimeout(() => { moved = false; }, 0);
     const left = track.scrollLeft;
     track.classList.remove('is-dragging');
     track.scrollLeft = left;

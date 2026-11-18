@@ -60,7 +60,8 @@ test('contact and training links open the correct channel without promising a co
 
 test('prices, assessment exclusions and sourced review data are preserved', () => {
   const html = render('es', 'home');
-  for (const text of ['234', '4,9', '60 €', '270 €', '500 €', 'No incluye tratamiento.', '18 de noviembre de 2026', 'Traducción del original en inglés.', 'J.Ch424', 'Erica Esteban']) assert.ok(html.includes(text), text);
+  for (const text of ['234', '4,9', '60 €', '270 €', '500 €', 'No incluye tratamiento.', 'Traducción del original en inglés.', 'J.Ch424', 'Erica Esteban']) assert.ok(html.includes(text), text);
+  assert.ok(render('es', 'privacy').includes('consultada el 18 de noviembre de 2026'), 'Review source date');
   assert.ok(html.includes('He&#39;s by far one of the best acupuncturist I&#39;ve been to'));
   assert.ok(html.includes('I can&#39;t speak highly enough of Dr. Shim and his acupuncture clinic.'));
   assert.ok(!html.includes('Adrien Coutant'));
@@ -81,7 +82,8 @@ test('Google reviews follow the hero, are visible in both languages and use loca
     assert.match(html, /234/);
     assert.match(html, /class="review-card"/);
     assert.match(html, /href="https:\/\/www\.google\.com\/maps\?cid=/);
-    assert.ok(html.includes(lang === 'es' ? '18 de noviembre de 2026' : '18 November 2026'));
+    assert.ok(render(lang, 'privacy').includes(lang === 'es' ? '18 de noviembre de 2026' : '18 November 2026'));
+    assert.ok(!html.includes('review-bottom'), 'The review footer block was removed');
     assert.match(html, /href="\/editorial\.css"/);
   }
   assert.match(es, /<p lang="en">He&#39;s by far one of the best acupuncturist/);
@@ -102,8 +104,9 @@ test('Google reviews form a carousel with the Google mark, translations and acce
       const html = render(lang, key);
       assert.equal((html.match(/class="review-card"/g) || []).length, reviews.length, `${lang}/${key}`);
       assert.equal((html.match(/id="opiniones"/g) || []).length, 1, `${lang}/${key}`);
-      assert.match(html, /<div class="review-carousel" data-carousel>/);
-      assert.match(html, /<ul class="review-track" tabindex="0" aria-label="[^"]+">/);
+      assert.match(html, /<div class="review-carousel" data-carousel data-autoplay>/);
+      assert.match(html, /<ul class="carousel-track review-track" tabindex="0" aria-label="[^"]+">/);
+      assert.match(html, /<button type="button" class="carousel-toggle" data-toggle/, 'Autoplay can be paused');
       assert.match(html, /<div class="carousel-controls" hidden>/);
       assert.match(html, /fill="#4285F4"/, 'Google logo');
       const translated = reviews.filter(review => review.lang !== lang).length;
@@ -198,4 +201,35 @@ test('preview server serves the root, bilingual deep links, assets and genuine 4
   assert.equal((await fetch(`${origin}/en/team`, { redirect: 'manual' })).status, 308);
   assert.equal((await fetch(`${origin}/`, { method: 'POST' })).status, 405);
   assert.equal((await fetch(`${origin}/%E0%A4%A`)).status, 400);
+});
+
+test('treatment cards use the live-site photos and the home page shows every technique in a carousel', () => {
+  for (const lang of ['es', 'en']) {
+    const home = render(lang, 'home');
+    const carousel = home.slice(home.indexOf('<div class="treatment-carousel" data-carousel>'), home.indexOf('class="section-bottom"', home.indexOf('treatment-carousel')));
+    assert.ok(carousel.length > 0, 'Treatment carousel on the home page');
+    assert.match(carousel, /<ul class="carousel-track treatment-track" tabindex="0" aria-label="[^"]+">/);
+    for (const item of treatments) {
+      assert.ok(carousel.includes(`href="${route(lang, item.id)}"`), `${lang}: ${item.id} in the carousel`);
+      assert.ok(carousel.includes(`src="/images/${item.photo.file}.jpg"`), `${lang}: ${item.id} photo`);
+    }
+    assert.ok(!carousel.includes('data-autoplay') && !carousel.includes('data-toggle'), 'Only the reviews scroll on their own');
+    const all = render(lang, 'treatments');
+    assert.equal((all.match(/class="card-media"/g) || []).length, treatments.length);
+    for (const item of treatments) {
+      const page = render(lang, item.id);
+      assert.match(page, new RegExp(`<figure><img class="[^"]*" src="/images/${item.photo.file}\\.jpg" alt="[^"]{10,}" width="${item.photo.size[0]}" height="${item.photo.size[1]}" fetchpriority="high"`), `${lang}/${item.id} hero photo`);
+      assert.equal((page.match(/class="carousel-slide"><a class="treatment-card"/g) || []).length, treatments.length - 1, `${lang}/${item.id} other techniques`);
+    }
+  }
+});
+
+test('the three starting questions link to their answers', () => {
+  for (const lang of ['es', 'en']) {
+    const home = render(lang, 'home');
+    for (const target of ['faq-2', 'faq-3', 'tarifas']) {
+      assert.ok(home.includes(`<li><a href="#${target}">`), `${lang}: link to ${target}`);
+      assert.ok(home.includes(`id="${target}"`), `${lang}: target ${target}`);
+    }
+  }
 });
