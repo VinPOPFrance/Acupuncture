@@ -154,12 +154,25 @@ h1 em, h2 em { font-style: normal; color: inherit; }
   --star: #f2a900;
 }
 .wa-icon, .phone-icon, .needle-icon, .google-g { flex: none; width: 18px; height: 18px; }
-.button-wa { gap: 12px; }
-.button-wa > span { margin-left: 8px; }
-.button-wa .wa-icon { width: 20px; height: 20px; }
-.button-small.button-wa { gap: 9px; }
-.button-small.button-wa .wa-icon { width: 16px; height: 16px; }
-.button-small.button-wa > span { margin-left: 4px; }
+/* Every WhatsApp button matches the green pill of the contact dock */
+.button.button-wa {
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 26px;
+  color: #fff;
+  background: var(--wa);
+  border: 1px solid var(--wa);
+  border-radius: 999px;
+  font: 700 14px/1.2 Arial, Helvetica, sans-serif;
+  box-shadow: 0 12px 26px -16px rgba(17, 122, 75, .7);
+  transition: background .2s, border-color .2s, transform .2s, box-shadow .2s;
+}
+.button.button-wa:hover { background: var(--wa-dark); border-color: var(--wa-dark); transform: translateY(-1px); box-shadow: 0 16px 30px -16px rgba(17, 122, 75, .8); }
+.button.button-wa > span { font: inherit; }
+.button.button-wa .wa-icon { width: 22px; height: 22px; }
+.button.button-small.button-wa { gap: 8px; min-height: 42px; padding: 0 18px; font-size: 12px; box-shadow: none; }
+.button.button-small.button-wa .wa-icon { width: 18px; height: 18px; }
+.plan .button.button-wa { box-shadow: none; }
 
 /* ---------- Scroll progress and header ---------- */
 .header { transition: box-shadow .3s ease; }
@@ -484,20 +497,24 @@ img.img-left { object-position: 0% 50%; }
 .services .carousel-progress { background: #d3d6c8; }
 .services .carousel-button:hover { background: var(--rust); }
 
-/* ---------- "Un punto de partida" questions link to their answers ---------- */
-.concerns li { padding: 0; }
-.concerns a {
+/* ---------- "Un punto de partida": questions answered in place ---------- */
+.concerns { margin: 25px 0 0; }
+.concern { border-bottom: 1px solid var(--line); }
+.concern summary {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 11px 0;
-  text-decoration: none;
-  transition: color .2s, padding .25s;
+  padding: 12px 0;
+  list-style: none;
+  font-size: 16px;
+  transition: color .2s;
 }
-.concerns a > span { color: var(--rust); }
-.concerns a::after { content: "↓"; margin-left: auto; color: var(--rust); opacity: .55; transition: opacity .2s, transform .2s; }
-.concerns a:hover { color: var(--rust); padding-left: 6px; }
-.concerns a:hover::after { opacity: 1; transform: translateY(2px); }
+.concern summary::-webkit-details-marker { display: none; }
+.concern summary:hover { color: var(--rust); }
+.concern-mark { color: var(--rust); }
+.concern-toggle { margin-left: auto; color: var(--rust); font: 22px/1 var(--serif); transition: transform .25s; }
+.concern[open] .concern-toggle { transform: rotate(45deg); }
+.concern > p { margin: 0 0 14px 30px; color: var(--muted); font-size: 15px; line-height: 1.6; }
 
 @media (max-width: 600px) {
   .card-body { padding: 18px 18px 14px; }

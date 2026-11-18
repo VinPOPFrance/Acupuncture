@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
-import { routes, treatments, clinic, reviews, cv } from '../src/content.mjs';
+import { routes, treatments, clinic, reviews, cv, copy } from '../src/content.mjs';
 import { render, route } from '../src/templates.mjs';
 
 const root = new URL('../', import.meta.url);
@@ -224,12 +224,37 @@ test('treatment cards use the live-site photos and the home page shows every tec
   }
 });
 
-test('the three starting questions link to their answers', () => {
+test('the three starting questions open their answer in place, without leaving the section', () => {
   for (const lang of ['es', 'en']) {
     const home = render(lang, 'home');
-    for (const target of ['faq-2', 'faq-3', 'tarifas']) {
-      assert.ok(home.includes(`<li><a href="#${target}">`), `${lang}: link to ${target}`);
-      assert.ok(home.includes(`id="${target}"`), `${lang}: target ${target}`);
+    const problem = home.slice(home.indexOf('class="section problem"'), home.indexOf('</section>', home.indexOf('class="section problem"')));
+    assert.equal((problem.match(/<details class="concern">/g) || []).length, 3, lang);
+    assert.ok(!/href="#/.test(problem), `${lang}: no jump to another section`);
+    for (const [, price] of copy[lang].prices.slice(1)) assert.ok(problem.includes(price), `${lang}: ${price} in the cost answer`);
+  }
+});
+
+test('home sections follow the agreed priority order', () => {
+  for (const lang of ['es', 'en']) {
+    const home = render(lang, 'home');
+    const order = ['class="hero"', 'id="opiniones"', 'class="section team-feature"', 'class="section services"', 'class="section problem"', 'id="primera-visita"', 'id="tarifas"', 'class="section location"', 'class="section faq"', 'class="final-cta"']
+      .map(marker => home.indexOf(marker));
+    assert.ok(order.every(index => index >= 0), `${lang}: every section present`);
+    assert.deepEqual([...order].sort((a, b) => a - b), order, `${lang}: order`);
+  }
+});
+
+test('every WhatsApp button uses the dock style with the WhatsApp logo and no arrow', () => {
+  for (const lang of ['es', 'en']) {
+    for (const key of keys) {
+      const html = render(lang, key);
+      const waLinks = [...html.matchAll(/<a class="([^"]*)" href="https:\/\/wa\.me\/[^"]+">([\s\S]*?)<\/a>/g)];
+      assert.ok(waLinks.length >= 2, `${lang}/${key}`);
+      for (const [, cls, inner] of waLinks) {
+        assert.ok(/\bbutton-wa\b|\bdock-wa\b/.test(cls), `${lang}/${key}: ${cls}`);
+        assert.ok(inner.startsWith('<svg class="wa-icon"'), `${lang}/${key}: WhatsApp logo first`);
+        assert.ok(!inner.includes('↗'), `${lang}/${key}: no arrow`);
+      }
     }
   }
 });

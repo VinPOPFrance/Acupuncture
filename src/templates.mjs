@@ -24,7 +24,7 @@ const wa = (lang, training = false) => {
 };
 
 function button(lang, training = false) {
-  return `<a class="button button-wa" href="${wa(lang, training)}">${waIcon}${training ? copy[lang].trainingBook : copy[lang].book}${arrow}</a>`;
+  return `<a class="button button-wa" href="${wa(lang, training)}">${waIcon}<span>${training ? copy[lang].trainingBook : copy[lang].book}</span></a>`;
 }
 
 const imageSizes = {
@@ -64,7 +64,7 @@ function header(lang, key) {
       ${['treatments', 'team', 'training', 'contact'].map((item, i) => `<a href="${route(lang, item)}" ${key === item || (item === 'treatments' && treatments.some(t => t.id === key)) ? 'aria-current="page"' : ''}>${c.nav[i]}</a>`).join('')}
     </nav>
     <div class="header-actions"><a class="language" href="${route(other, key)}" hreflang="${other}" lang="${other}" aria-label="${other === 'en' ? 'Read this page in English' : 'Leer esta página en español'}"><span ${lang === 'es' ? 'class="selected"' : ''}>ES</span><span aria-hidden="true">/</span><span ${lang === 'en' ? 'class="selected"' : ''}>EN</span></a>
-    <a class="button button-small button-wa" href="${wa(lang)}">${waIcon}${c.appointment}${arrow}</a></div>
+    <a class="button button-small button-wa" href="${wa(lang)}">${waIcon}<span>${c.appointment}</span></a></div>
   </div></header>`;
 }
 
@@ -187,11 +187,12 @@ function home(lang) {
   const c = copy[lang];
   return `<section class="hero"><div class="container hero-grid"><div class="hero-copy"><p class="eyebrow">${c.eyebrow}</p><h1>${c.hero}</h1><p class="hero-intro">${c.intro}</p><a class="hero-rating-link" href="#opiniones">${googleG()}<span class="hero-stars" aria-hidden="true">★★★★★</span> ${c.heroRating}</a><div class="hero-actions">${button(lang)}<p class="small">${c.cue}</p></div></div>
     <figure class="hero-figure">${image('equipo', c.caption, 'hero-image', true)}<figcaption>${c.caption}</figcaption></figure>
-  </div></section>${reviews(lang)}
-  <section class="section problem"><div class="container problem-grid"><div><p class="eyebrow">${c.problemEyebrow}</p><h2>${c.problemTitle}</h2></div><div><p class="lead">${c.problemText}</p><ul class="concerns">${c.concerns.map((q, i) => `<li><a href="${['#faq-2', '#faq-3', '#tarifas'][i]}"><span aria-hidden="true">↳</span>${q}</a></li>`).join('')}</ul></div></div></section>
-  <section class="section services"><div class="container"><div class="section-heading heading-split"><div><p class="eyebrow">${c.servicesEyebrow}</p><h2>${c.servicesTitle}</h2></div><p>${c.servicesText}</p></div>${treatmentCarousel(lang, treatments)}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>
+  </div></section>
+  ${reviews(lang)}
   <section class="section team-feature"><div class="container team-grid"><figure class="team-photo">${image('dr-shim', c.cvPhotoAlt)}<figcaption>${c.cvPhotoCaption}</figcaption></figure><div class="team-copy"><p class="eyebrow">${c.teamEyebrow}</p><h2>${c.teamTitle}</h2><p>${c.teamText}</p>${cvHighlights(lang)}<a class="text-link" href="${route(lang, 'team')}#curriculum">${c.cvLink}${arrow}</a></div></div></section>
-  ${plan(lang)}${prices(lang)}${faq(lang)}${location(lang)}${finalCTA(lang)}`;
+  <section class="section services"><div class="container"><div class="section-heading heading-split"><div><p class="eyebrow">${c.servicesEyebrow}</p><h2>${c.servicesTitle}</h2></div><p>${c.servicesText}</p></div>${treatmentCarousel(lang, treatments)}<div class="section-bottom"><a class="text-link" href="${route(lang, 'treatments')}">${c.allTreatments}${arrow}</a></div></div></section>
+  <section class="section problem"><div class="container problem-grid"><div><p class="eyebrow">${c.problemEyebrow}</p><h2>${c.problemTitle}</h2></div><div><p class="lead">${c.problemText}</p><div class="concerns">${c.concerns.map(([question, answer]) => `<details class="concern"><summary><span class="concern-mark" aria-hidden="true">↳</span>${question}<span class="concern-toggle" aria-hidden="true">+</span></summary><p>${answer}</p></details>`).join('')}</div></div></div></section>
+  ${plan(lang)}${prices(lang)}${location(lang)}${faq(lang)}${finalCTA(lang)}`;
 }
 
 function pageHero(lang, title, lead, eyebrow, photo, alt, cls = '') {
