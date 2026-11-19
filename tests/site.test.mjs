@@ -66,7 +66,8 @@ test('prices, assessment exclusions and sourced review data are preserved', () =
   assert.ok(html.includes('I can&#39;t speak highly enough of Dr. Shim and his acupuncture clinic.'));
   assert.ok(!html.includes('Adrien Coutant'));
   assert.ok(!html.includes('garantizamos') && !html.includes('curación'));
-  assert.ok(render('en', 'home').includes('confirm the language of your consultation'));
+  assert.ok(render('en', 'home').includes('Spanish, English, Korean and Chinese'));
+  assert.ok(html.includes('español, inglés, coreano y chino'));
 });
 
 test('Google reviews follow the hero, are visible in both languages and use local fonts', () => {
