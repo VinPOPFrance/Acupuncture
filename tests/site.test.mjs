@@ -60,7 +60,7 @@ test('contact and training links open the correct channel without promising a co
 
 test('prices, assessment exclusions and sourced review data are preserved', () => {
   const html = render('es', 'home');
-  for (const text of ['234', '4,9', '60 €', '270 €', '500 €', 'No incluye tratamiento.', 'Traducción del original en inglés.', 'J.Ch424', 'Erica Esteban']) assert.ok(html.includes(text), text);
+  for (const text of ['234', '4,9', '60 €', '270 €', '500 €', 'No incluye sesión.','Traducción del original en inglés.', 'J.Ch424', 'Erica Esteban']) assert.ok(html.includes(text), text);
   assert.ok(render('es', 'privacy').includes('consultada el 18 de noviembre de 2026'), 'Review source date');
   assert.ok(html.includes('He&#39;s by far one of the best acupuncturist I&#39;ve been to'));
   assert.ok(html.includes('I can&#39;t speak highly enough of Dr. Shim and his acupuncture clinic.'));
@@ -68,6 +68,14 @@ test('prices, assessment exclusions and sourced review data are preserved', () =
   assert.ok(!html.includes('garantizamos') && !html.includes('curación'));
   assert.ok(render('en', 'home').includes('Spanish, English, Korean and Chinese'));
   assert.ok(html.includes('español, inglés, coreano y chino'));
+  // The centre is not a health centre: no "tratamiento(s)" in the site's own copy (Google review quotes excepted).
+  for (const lang of ['es', 'en']) {
+    for (const key of ['home', 'treatments', 'acupuncture', 'contact']) {
+      const page = render(lang, key).replace(/<blockquote[\s\S]*?<\/blockquote>/g, '');
+      assert.ok(!/>[^<]*\b(Tratamientos?|TRATAMIENTOS|Treatments?|TREATMENTS)\b[^<]*</.test(page), `${lang}/${key} still says treatment`);
+    }
+    assert.ok(render(lang, 'home').includes(lang === 'es' ? 'no es un centro sanitario' : 'is not a healthcare centre'));
+  }
 });
 
 test('Google reviews follow the hero, are visible in both languages and use local fonts', () => {
@@ -173,6 +181,20 @@ test('publication cannot accidentally enable indexing with incomplete approvals'
   });
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /Publication blocked/);
+});
+
+test('legal-pending publication names the trading name and the rights paragraph, never the preview notices', () => {
+  for (const lang of ['es', 'en']) {
+    const html = render(lang, 'privacy', { publish: true, legalPending: true, origin: 'https://www.seulacupuntura.com', hostingName: 'Wix.com Ltd.' });
+    assert.ok(html.includes('<p>Seul Acupuntura</p>'), lang);
+    assert.ok(html.includes('aepd.es'), lang);
+    assert.ok(!/vista previa|is a preview|Antes de publicar|Before publication/.test(html), lang);
+  }
+  const result = spawnSync(process.execPath, ['scripts/build.mjs'], {
+    cwd: root, encoding: 'utf8',
+    env: { ...process.env, PUBLISH: '1', LEGAL_PENDING: '1', PUBLIC_SITE_URL: '', CF_PAGES_URL: '', VERCEL_URL: '', HOSTING_NAME: 'Wix.com Ltd.', CONTENT_APPROVED: '1' },
+  });
+  assert.notEqual(result.status, 0, 'PUBLIC_SITE_URL is still required');
 });
 
 test('preview server serves the root, bilingual deep links, assets and genuine 404 responses', async t => {
@@ -287,4 +309,25 @@ test('the Seul Acupuntura logo is in the header and footer of every page, and is
       assert.ok(html.includes('<link rel="icon" type="image/png" href="/images/logo-seul-mark.png">'), `${lang}/${key}`);
     }
   }
+});
+
+test('Google tag (Google Ads, consent denied) is on every page and allowed by both CSPs', async () => {
+  assert.equal(clinic.googleTags.ads, 'AW-829553432');
+  for (const lang of ['es', 'en']) {
+    for (const key of keys) {
+      const html = render(lang, key);
+      assert.ok(html.includes('<script src="/google-tag.js" data-ads="AW-829553432"></script>'), `${lang}/${key}`);
+    }
+  }
+  const tag = await readFile(new URL('public/google-tag.js', root), 'utf8');
+  assert.match(tag, /ad_storage: 'denied'/);
+  assert.match(tag, /analytics_storage: 'denied'/);
+  const vercel = JSON.parse(await readFile(new URL('vercel.json', root), 'utf8'));
+  const vercelCsp = vercel.headers[0].headers.find(h => h.key === 'Content-Security-Policy').value;
+  const pagesCsp = await readFile(new URL('src/headers.txt', root), 'utf8');
+  for (const csp of [vercelCsp, pagesCsp]) {
+    assert.match(csp, /script-src 'self' https:\/\/www\.googletagmanager\.com/);
+    assert.match(csp, /connect-src [^;]*https:\/\/pagead2\.googlesyndication\.com/);
+  }
+  for (const lang of ['es', 'en']) assert.ok(render(lang, 'privacy').includes('Google Ads'));
 });

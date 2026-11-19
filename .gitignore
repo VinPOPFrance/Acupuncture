@@ -3,3 +3,18 @@ dist/
 .vercel/
 .wrangler/
 .webanatomy/
+
+# Wix Astro frontend (wix/)
+wix/node_modules/
+wix/dist/
+wix/.wix/
+wix/.astro/
+wix/.env*
+wix/public/
+wix/src/pages/
+wix/src/site/
+wix/build.zip
+wix/npm-install.log
+wix/source.zip
+wix/dev.log
+wix/.wrangler/

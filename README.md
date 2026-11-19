@@ -179,6 +179,84 @@ Une offre commerciale adaptée est nécessaire, même avec un sous-domaine
 `vercel.app`. Les en-têtes `_headers` de Cloudflare ne sont pas interprétés par
 Vercel ; le mode aperçu y reste non indexable par les balises et `robots.txt`.
 
+## Balise Google (Google Ads)
+
+Relevé le 19 novembre 2026 dans le HTML du site Wix (accueil et `/contacto`) : une seule balise,
+Google Ads **`AW-829553432`**, chargée par l'intégration Wix avec le mode de consentement Google
+entièrement « refusé » et sans bannière de cookies. Aucun identifiant Google Analytics 4 (`G-…`) n'y était
+chargé, et seuls des `page_view` étaient envoyés (aucune conversion).
+
+- Identifiants : `clinic.googleTags` dans [src/content.mjs](src/content.mjs) (`ads`, et `analytics` vide
+  tant qu'aucun GA4 n'est fourni). Vider les deux retire la balise de toutes les pages.
+- Chargement : [public/google-tag.js](public/google-tag.js), appelé par `googleTag()` dans
+  [src/templates.mjs](src/templates.mjs) sur les 26 pages (pas sur la 404). Fichier séparé car la CSP
+  interdit les scripts en ligne. Consentement par défaut : tout refusé, comme sur Wix, donc aucun cookie
+  publicitaire ni de mesure, seulement des signaux sans cookie.
+- CSP : les domaines Google (`googletagmanager.com`, `pagead2.googlesyndication.com`, `doubleclick.net`,
+  `googleadservices.com`, `google.com`, `google.es`, `google-analytics.com`) sont ajoutés **à la fois** dans
+  [vercel.json](vercel.json) et [src/headers.txt](src/headers.txt) (Cloudflare). Les deux doivent rester
+  identiques ; sinon la balise est bloquée sur l'un des hébergeurs. Le serveur local n'envoie pas la CSP :
+  la vérifier sur l'URL hébergée.
+- Confidentialité : la page `privacidad` décrit la balise et le mode refusé (ES/EN). Ajouter une bannière
+  de consentement (pour mesurer avec cookies) imposerait d'adapter ce texte et la CSP.
+- Sur l'hébergement Wix, cette balise est retirée au profit de celle que Wix injecte (section Hébergement Wix).
+- Vérifié en local le 19 novembre 2026 : `gtag/js?id=AW-829553432` chargé, `page_view` envoyé à
+  `pagead2.googlesyndication.com`, aucun cookie posé.
+
+## Hébergement Wix (migration Headless, depuis le 19 novembre 2026)
+
+Décision du 19 novembre 2026 (Adrien) : garder les abonnements Wix et y héberger ce site, plutôt que
+Vercel (offre Hobby non commerciale). Wix « Headless migration » : le site Wix actuel (parent
+`920b58b9-c98e-49db-ac62-06a8b04cb313`, plan Premium, domaine) garde plan et domaine ; un site technique
+(`3e40ea89-33e5-4990-8628-448e96bcec27`, app `50a10e5f-08bf-48d8-912b-38caca5af716`) sert l'aperçu
+<https://headless-scuwxudrwru-seuinformatica-140e.wix-site-host.com>. Migration `bb1ae032-8553-4e5d-a919-9f8c5d69fdb4`.
+**Migration terminée le 19 novembre 2026 vers 15:27 (heure de Madrid)** (Adrien : « fais la migration complète en attendant que le
+centre m'envoie les informations ») : état `COMPLETED`, www.seulacupuntura.com sert ce site. « Switch back » dans
+les paramètres Headless du tableau de bord remet l'ancien site. Depuis, `wix/wix.config.json` pointe sur le **parent**
+(`siteId` `920b58b9-…`, `appId` `5a87bc97-e6aa-4ed2-a38c-69f399d0dd10`) et `.env.local` a `EDITOR_MIGRATION_STATUS="COMPLETED"` :
+chaque nouvelle version se publie sur le site parent.
+
+- [wix/](wix/) : projet Astro fourni par Wix (`wix.config.json`, `astro.config.mjs`). Les pages ne sont pas
+  réécrites : [scripts/build-wix.mjs](scripts/build-wix.mjs) prend `dist/` et crée une page Astro par page HTML,
+  qui renvoie le HTML tel quel. Fichiers générés (non versionnés) : `wix/public/`, `wix/src/pages/`, `wix/src/site/`.
+- Différences avec `dist/`, faites par `build-wix.mjs` : pas de `robots.txt`, `sitemap.xml`, `_headers`,
+  `_redirects` (Wix sert les siens) ; **pas de `google-tag.js`** (voir ci-dessous) ; liens internes, canonical,
+  hreflang et og:url **sans « / » final**, car Wix redirige `/acupuntura/` vers `/acupuntura`.
+- Redirections des anciennes pages Wix : `redirects` de `wix/astro.config.mjs` (celles de `vercel.json` plus les six
+  `/services-1/<technique>` du sitemap de l'ancien site, relevé le 19 novembre 2026 ; cibles
+  sans « / »). `trailingSlash: "ignore"` : `/acupuntura` et `/contacto` de l'ancien site répondent directement.
+- **Google Ads sur Wix :** Wix injecte lui-même l'intégration Google Ads du site (`AW-829553432`, consentement
+  refusé par défaut) et envoie sa page vue (`did=dYzMzMD`). Avec notre balise en plus, chaque visite était comptée
+  deux fois (mesuré sur l'aperçu le 19 novembre 2026). La version Wix ne garde donc que celle de Wix. Si
+  l'intégration Google Ads est retirée dans Wix (Marketing → Intégrations), retirer `google-tag.js` de `skip` et
+  la suppression du `<script>` dans `fix()` de `build-wix.mjs`, sinon le site n'a plus de balise.
+- `.env.local` (non versionné) : `WIX_CLIENT_ID` = app compagnon du **parent** `5a87bc97-e6aa-4ed2-a38c-69f399d0dd10`,
+  variables `EDITOR_MIGRATION_*`, et trois valeurs factices que l'hébergement Wix remplace à la publication.
+- Node 26 (installé le 19 novembre 2026) : Astro 7.4, exigé par l'adaptateur d'hébergement Wix, refuse Node 22.17.
+  `astro dev` échoue sous Windows (environnement Cloudflare de l'adaptateur) ; vérifier sur l'aperçu.
+- Publier une nouvelle version : `npm run build` (racine) ; `node scripts/build-wix.mjs` ; dans `wix/`,
+  `npx astro build` ; zipper `.wix` et `dist` (`tar.exe -a -c -f build.zip .wix dist`, chemins en « / ») et le
+  source (sans `node_modules`, `dist`, `.wix`, `.astro`, `.env*`) ; envoi par `UploadHeadlessWebsiteFiles` du
+  connecteur Wix (appel `prepare` avec la taille, `curl PUT` sur les deux URL, second appel). Dernière révision
+  source sur le parent : `37b3ee2c47fa9af4f6ffc618bdce74506a628f7a` (publication du 19 novembre 2026, 16:50 : « técnicas » au lieu de « tratamientos », mention « no es un centro sanitario ») (à passer en `expectedHeadRevisionId`).
+- Build publié (indexable) : `PUBLISH=1 LEGAL_PENDING=1 PUBLIC_SITE_URL=https://www.seulacupuntura.com
+  HOSTING_NAME="Wix.com Ltd" CONTENT_APPROVED=1 node scripts/build.mjs`. `CONTENT_APPROVED` : Adrien, 19 novembre 2026,
+  « le centre a vérifié tout le site et tout est bon ». `LEGAL_PENDING=1` : nom légal et NIF pas encore fournis (absents
+  aussi de l'ancien site Wix et du compte Wix, vérifié le 19 novembre 2026) ; la page confidentialité nomme « Seul
+  Acupuntura » et donne un paragraphe de droits minimal (accès, rectification, suppression, AEPD). **Dès réception** :
+  construire sans `LEGAL_PENDING`, avec `LEGAL_NAME`, `LEGAL_TAX_ID`, `PRIVACY_DETAILS_ES/EN` (LSSI-CE art. 10), puis publier.
+- Vérifié sur www.seulacupuntura.com le 19 novembre 2026 : `index, follow`, canonical absolu sans « / » final, une seule
+  balise `AW-829553432` (Wix, injectée quelques secondes après le chargement) avec sa paire de signaux `page_view`
+  habituelle, redirections `/quienessomos`, `/cursos`, `/services-1/tui-na` → 200, page inconnue → 404.
+
+## Bascule du domaine seulacupuntura.com
+
+État relevé le 19 novembre 2026 : domaine enregistré chez **Wix** (registrar Wix.com Ltd., échéance
+2027-10-03), DNS gérés par Wix (`ns2.wixdns.net`, `ns3.wixdns.net`), `www` en CNAME vers
+`cdn3.wixdns.net`, aucun enregistrement MX (pas d'e-mail sur le domaine ; le centre utilise Gmail).
+Avant de faire pointer le domaine : construire en mode publication (`PUBLISH=1` et variables
+ci-dessous), sinon le site officiel serait servi en `noindex` et sortirait de Google.
+
 ## Validation obligatoire avant publication officielle
 
 Le build fonctionne immédiatement en mode aperçu. Pour une version officielle
@@ -194,6 +272,7 @@ indexable, fournir ces variables au moment de construire :
 | `PRIVACY_DETAILS_EN` | Version anglaise correspondante. |
 | `CONTENT_APPROVED` | `1`, une fois les prix, photos, avis et textes santé approuvés. |
 | `PUBLISH` | `1`, uniquement après les validations ci-dessus. |
+| `LEGAL_PENDING` | `1` pour publier sans `LEGAL_NAME`, `LEGAL_TAX_ID` ni `PRIVACY_DETAILS_*` (décision du 19 novembre 2026, en attendant le centre). À retirer dès réception. |
 
 Le build refuse le mode publication si ces données manquent. Les textes
 juridiques doivent préciser les bases légales, finalités, conservation,
@@ -215,6 +294,8 @@ pas que les consultations ou formations sont disponibles en anglais.
 
 - [Diagnostic de l'ancien accueil](.webanatomy/audit-page/homepage-2026-10-15/report.md).
 - [Rapport visuel de refonte](.webanatomy/write-page/homepage-2026-10-15/report.html).
+- [Historique de la conversation du 19 novembre 2026](docs/historique-conversation-2026-11-19.md) : balise
+  Google Ads, choix de l'hébergement, migration Headless Wix, liste des informations légales demandées au centre.
 
 Ces rapports utilisent le site rendu et ses sources directes, sans corpus
 Web Anatomy, conformément au choix de l'utilisateur. Ils ne sont pas copiés

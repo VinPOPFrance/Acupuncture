@@ -5,6 +5,10 @@ import { render, route, notFound } from '../src/templates.mjs';
 const root = new URL('../', import.meta.url);
 const out = new URL('dist/', root);
 const publish = process.env.PUBLISH === '1';
+// LEGAL_PENDING=1 (decision of 2026-11-19, Adrien: go live on Wix while the practice sends its legal name and NIF):
+// publication without LEGAL_NAME, LEGAL_TAX_ID and PRIVACY_DETAILS_*. The privacy page then names the trading name
+// and gives the basic rights paragraph. Remove it as soon as the practice's details arrive (LSSI-CE art. 10).
+const legalPending = process.env.LEGAL_PENDING === '1';
 const configuredOrigin = process.env.PUBLIC_SITE_URL || process.env.CF_PAGES_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '');
 let origin = '';
 if (configuredOrigin) {
@@ -15,14 +19,15 @@ if (configuredOrigin) {
   origin = url.origin;
 }
 const settings = {
-  publish, origin,
+  publish, origin, legalPending,
   legalName: process.env.LEGAL_NAME || '',
   taxId: process.env.LEGAL_TAX_ID || '',
   hostingName: process.env.HOSTING_NAME || '',
   privacyDetails: process.env.PRIVACY_DETAILS_ES || '',
 };
 if (publish) {
-  for (const name of ['PUBLIC_SITE_URL', 'LEGAL_NAME', 'LEGAL_TAX_ID', 'HOSTING_NAME', 'PRIVACY_DETAILS_ES', 'PRIVACY_DETAILS_EN']) {
+  const required = legalPending ? ['PUBLIC_SITE_URL', 'HOSTING_NAME'] : ['PUBLIC_SITE_URL', 'LEGAL_NAME', 'LEGAL_TAX_ID', 'HOSTING_NAME', 'PRIVACY_DETAILS_ES', 'PRIVACY_DETAILS_EN'];
+  for (const name of required) {
     if (!process.env[name]?.trim()) throw new Error(`Publication blocked: ${name} is required. See README.`);
   }
   if (process.env.CONTENT_APPROVED !== '1') throw new Error('Publication blocked: set CONTENT_APPROVED=1 after the practice validates prices, photos, reviews and health copy.');
@@ -51,4 +56,4 @@ const redirects = {
   '/descripciontratamiento': '/tratamientos/', '/services-1': '/tratamientos/',
 };
 await writeFile(new URL('_redirects', out), Object.entries(redirects).map(([from, to]) => `${from} ${to} 301`).join('\n') + '\n');
-console.log(`Built ${keys.length * 2} pages + 404 (${publish ? 'production' : 'preview: noindex'}).`);
+console.log(`Built ${keys.length * 2} pages + 404 (${publish ? `production${legalPending ? ', legal details pending' : ''}` : 'preview: noindex'}).`);
